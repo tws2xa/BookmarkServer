@@ -8,7 +8,6 @@ public class Board {
 	final int BOARD_WIDTH = 4;
 	final int BOARD_HEIGHT = 4;
 	public Card[][] board;
-	HashMap<Team, Point> teamPositions;
 	
 	public Board(ArrayList<Team> teams) {
 		board = new Card[BOARD_WIDTH][BOARD_HEIGHT];

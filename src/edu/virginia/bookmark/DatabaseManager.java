@@ -88,4 +88,50 @@ public class DatabaseManager {
 	public static ArrayList<Student> loadTeamStudents(int teamId) {
 		return new ArrayList<Student>();
 	}
+	
+
+	// --------------------------------------------------------------------------
+	// ---------------------------- TESTING METHODS -----------------------------
+	// --------------------------------------------------------------------------
+	public static SchoolClass testClass;
+	
+	public static void createTestContent() {
+		// Create 12 cards
+		//
+		ArrayList<Card> cards = new ArrayList<Card>();
+		cards.add(new Card(0, Card.CardType.Argument, "Here is the point I wish to argue! Hooray!", -1, -1));
+		cards.add(new Card(1, Card.CardType.Tone, "I have uncovered the mysteries of Tone! Hooray!", -1, -1));
+		cards.add(new Card(2, Card.CardType.Imagery, "Here is some imagery! Huzzah!", 2, -1));
+		cards.add(new Card(3, Card.CardType.Diction, "Words are my speciality! Huzzah!", 7, 8));
+		cards.add(new Card(4, Card.CardType.Diction, "Here are some fancy words! Yippie!", 6, 7));
+		cards.add(new Card(5, Card.CardType.Theme, "I theme, you theme, we all theme for Ice Cream! Yippie!", -1, -1));
+		cards.add(new Card(6, Card.CardType.Tone, "This is how the author felt when writing! Woohoo!", -1, -1));
+		cards.add(new Card(7, Card.CardType.Other, "I found some alliteration! Woohoo!", 9, -1));
+		cards.add(new Card(8, Card.CardType.Theme, "Here is a main, underlying idea of the text! Yowzah!", -1, -1));
+		cards.add(new Card(9, Card.CardType.Argument, "This is a thing I believe! Yowzah!", -1, -1));
+		cards.add(new Card(10, Card.CardType.Other, "Here is an incredibly original thought! I love this game!!", -1, -1));
+		cards.add(new Card(11, Card.CardType.Imagery, "Beautiful words paint a beautiful picture! I love this game!", 8, 10));
+		
+		// Create 6 Students to hold cards
+		//
+		ArrayList<Student> students = new ArrayList<Student>();
+		students.add(new Student(100, "Peter Capaldi", (ArrayList<Card>) cards.subList(0, 2)));
+		students.add(new Student(101, "Matt Smith", (ArrayList<Card>) cards.subList(2, 4)));
+		students.add(new Student(102, "David Tennant", (ArrayList<Card>) cards.subList(4, 6)));
+		students.add(new Student(103, "Christopher Eccelston", (ArrayList<Card>) cards.subList(6, 8)));
+		students.add(new Student(104, "Paul McGann", (ArrayList<Card>) cards.subList(8, 10)));
+		students.add(new Student(105, "Sylvester McCoy", (ArrayList<Card>) cards.subList(10, 12)));
+		
+		// Create 3 Teams for Students
+		//
+		ArrayList<Team> teams = new ArrayList<Team>();
+		teams.add(new Team(1000, "Gandalf", (ArrayList<Student>) students.subList(0, 2)));
+		teams.add(new Team(1001, "Aragorn", (ArrayList<Student>) students.subList(2, 4)));
+		teams.add(new Team(1002, "Samwise", (ArrayList<Student>) students.subList(4, 6)));
+		
+		// Create 1 class with the teams
+		//
+		testClass = new SchoolClass(10000, teams);
+	}
+	
 }

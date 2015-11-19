@@ -21,9 +21,7 @@ public class BookmarkServlet extends HttpServlet {
 
     private final String BEGIN_SESSION = "begin-session";
     private final String SHOW_ERROR = "show-error";
-    
-    private ArrayList<Session> activeSessions = new ArrayList<Session>();
-    
+        
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     	try {
@@ -73,37 +71,20 @@ public class BookmarkServlet extends HttpServlet {
      * @return The response to send to the client
      */
     public ResponseInfo handleRequest(String action, Map<String, String[]> params) {
-    	int status = 200;
-    	String message = "No Message Set";
-    	
     	switch(action) {
     	case (SHOW_ERROR):
-    		status = 501;
-    		message = "Intentional Error!";
-    		break;
-    	case(BEGIN_SESSION):
-        	int teacherId = Integer.parseInt(params.get("teacher_id")[0]);
-    		int classId = Integer.parseInt(params.get("class_id")[0]);
-    		if(DatabaseManager.verifyTeacherClass(teacherId, classId)) {
-    			// Create the session
-    			status = 200;
-    			Session session = new Session(teacherId);
-    			session.startSession();
-    			activeSessions.add(session);
-    			message = "Your session has been started!";
-    		} else {
-    			status = 500;
-    			message = "You are not registered as the teacher for the requested class.";
-    		}
-    		break;
-    	default:
-    		status = 500;
-    		message = "Unrecognized Action: " + action;
-    		break;
-    	}
+    		return new ResponseInfo(501, "Intentional Error!");
     	
-    	return new ResponseInfo(status, message);
+    	case(BEGIN_SESSION):
+    		int teacherId = Integer.parseInt(params.get("teacher_id")[0]);
+			int classId = Integer.parseInt(params.get("class_id")[0]);
+        	return GameManager.beginSession(teacherId, classId);
+    	
+    	default:
+    		return new ResponseInfo(500, "Unrecognized Action: " + action);
+    		
+    	}
     }
-	
+    	
 	
 }
