@@ -30,6 +30,10 @@ public class BookmarkServlet extends HttpServlet {
 	        String action = request.getPathInfo();
 	        System.out.println("Recieved Request to : \"" + action + "\"");
 	        
+	        // Allow localhost communication
+	        //
+	        response.addHeader("Access-Control-Allow-Origin", "http://localhost");
+	        
 	        // Must designate an action
 	        //
 	        if(action.isEmpty()) {
