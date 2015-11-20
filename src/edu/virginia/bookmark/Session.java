@@ -24,17 +24,20 @@ public class Session {
 			DatabaseManager.createTestContent();
 			this.schoolClass = DatabaseManager.testClass;
 		}
-		this.teams = schoolClass.getTeams();
+		this.teams = this.schoolClass.getTeams();
 	}
 	
 	/**
 	 * Launch the new game session
 	 */
 	public void startSession() {
+		System.out.println("Creating Board");
 		this.board = new Board(teams);
-		teacherUpToDate = false;
-		upToDateTeamIds = new ArrayList<Integer>();
+		System.out.println("Setting Team Positions.");
 		initializeTeamPositions();
+		System.out.println("Clearing Up To Date Status.");
+		upToDateTeamIds = new ArrayList<Integer>();
+		teacherUpToDate = false;
 	}
 	
 	/**
@@ -64,13 +67,15 @@ public class Session {
 		markAsUpToDate(requestId);
 		
 		String info = "<board_state>";
-		info += ("<turn_id>=" + activeTurnTeamId + "</turn_id>");
+		info += ("<turn_id>" + activeTurnTeamId + "</turn_id>");
 		
 		for(Team team : teams) {
 			info += team.getInfoString();
 		}
 		
 		info += "</board_state>";
+		System.out.println("Returning:");
+		System.out.println(info);
 		return info;
 	}
 	

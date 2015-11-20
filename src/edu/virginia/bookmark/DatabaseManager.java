@@ -46,6 +46,19 @@ public class DatabaseManager {
 		return new ArrayList<Card>();
 	}
 	
+	/**
+	 * Finds the student with the given id.
+	 * @return The student if the id is found, null otherwise.
+	 */
+	public static Student findStudentWithId(int id) {
+		createTestContent();
+		for(Student student : testStudents) {
+			if(student.id == id) {
+				return student;
+			}
+		}
+		return null;
+	}
 
 	// --------------------------------------------------------------------------
 	// ---------------------------- GET TEACHER INFO ----------------------------
@@ -57,7 +70,7 @@ public class DatabaseManager {
 	 * @return True if the id is a teacher, false otherwise
 	 */
 	public static boolean verifyTeacher(int teacherId) {
-		return true;
+		return teacherId == 100;
 	}
 	
 	/**
@@ -91,11 +104,35 @@ public class DatabaseManager {
 	
 
 	// --------------------------------------------------------------------------
+	// ---------------------------- ACCOUNT METHODS -----------------------------
+	// --------------------------------------------------------------------------
+	
+	/**
+	 * Log in the user with the given username and password
+	 * @return The user's person id. -1 on Failure.
+	 */
+	public static int doLogin(String username, String pass) {
+		for(int i=12; i>=7; i--) {
+			String docWord = ("Doc" + i);
+			if(username.equals(docWord) && pass.equals(docWord)) {
+				return (100 + i);
+			}
+		}
+		if(username.equals("a") && pass.equals("a")) {
+			return 100; // Teacher
+		}
+		return -1; // No match
+	}
+
+	// --------------------------------------------------------------------------
 	// ---------------------------- TESTING METHODS -----------------------------
 	// --------------------------------------------------------------------------
+	
 	public static SchoolClass testClass;
+	public static ArrayList<Student> testStudents;
 	
 	public static void createTestContent() {
+		System.out.println("Creating Cards.");
 		// Create 12 cards
 		//
 		ArrayList<Card> cards = new ArrayList<Card>();
@@ -112,23 +149,26 @@ public class DatabaseManager {
 		cards.add(new Card(10, Card.CardType.Other, "Here is an incredibly original thought! I love this game!!", -1, -1));
 		cards.add(new Card(11, Card.CardType.Imagery, "Beautiful words paint a beautiful picture! I love this game!", 8, 10));
 		
+		System.out.println("Creating Students");
 		// Create 6 Students to hold cards
 		//
-		ArrayList<Student> students = new ArrayList<Student>();
-		students.add(new Student(100, "Peter Capaldi", (ArrayList<Card>) cards.subList(0, 2)));
-		students.add(new Student(101, "Matt Smith", (ArrayList<Card>) cards.subList(2, 4)));
-		students.add(new Student(102, "David Tennant", (ArrayList<Card>) cards.subList(4, 6)));
-		students.add(new Student(103, "Christopher Eccelston", (ArrayList<Card>) cards.subList(6, 8)));
-		students.add(new Student(104, "Paul McGann", (ArrayList<Card>) cards.subList(8, 10)));
-		students.add(new Student(105, "Sylvester McCoy", (ArrayList<Card>) cards.subList(10, 12)));
+		testStudents = new ArrayList<Student>();
+		testStudents.add(new Student(112, "Peter Capaldi", new ArrayList<Card>(cards.subList(0, 2))));
+		testStudents.add(new Student(111, "Matt Smith", new ArrayList<Card>(cards.subList(2, 4))));
+		testStudents.add(new Student(110, "David Tennant", new ArrayList<Card>(cards.subList(4, 6))));
+		testStudents.add(new Student(109, "Christopher Eccelston", new ArrayList<Card>(cards.subList(6, 8))));
+		testStudents.add(new Student(108, "Paul McGann", new ArrayList<Card>(cards.subList(8, 10))));
+		testStudents.add(new Student(107, "Sylvester McCoy", new ArrayList<Card>(cards.subList(10, 12))));
 		
+		System.out.println("Creating Teams");
 		// Create 3 Teams for Students
 		//
 		ArrayList<Team> teams = new ArrayList<Team>();
-		teams.add(new Team(1000, "Gandalf", (ArrayList<Student>) students.subList(0, 2)));
-		teams.add(new Team(1001, "Aragorn", (ArrayList<Student>) students.subList(2, 4)));
-		teams.add(new Team(1002, "Samwise", (ArrayList<Student>) students.subList(4, 6)));
+		teams.add(new Team(1000, "Gandalf", new ArrayList<Student>(testStudents.subList(0, 2))));
+		teams.add(new Team(1001, "Aragorn", new ArrayList<Student>(testStudents.subList(2, 4))));
+		teams.add(new Team(1002, "Samwise", new ArrayList<Student>(testStudents.subList(4, 6))));
 		
+		System.out.println("Creating Class");
 		// Create 1 class with the teams
 		//
 		testClass = new SchoolClass(10000, teams);

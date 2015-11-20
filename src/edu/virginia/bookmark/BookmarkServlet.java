@@ -20,7 +20,9 @@ public class BookmarkServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private final String BEGIN_SESSION = "begin-session";
+    private final String LOGIN = "login";
     private final String SHOW_ERROR = "show-error";
+    private final String GET_STUDENT_INFO = "get-student-info";
         
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -28,7 +30,6 @@ public class BookmarkServlet extends HttpServlet {
 	    	// Get the URL Info
 	    	//
 	        String action = request.getPathInfo();
-	        System.out.println("Recieved Request to : \"" + action + "\"");
 	        
 	        // Allow localhost communication
 	        //
@@ -39,10 +40,25 @@ public class BookmarkServlet extends HttpServlet {
 	        if(action.isEmpty()) {
 	        	response.sendError(500, "Badly Formed URL. Must designate an action.");
 	        	return;
+	        } else {
+	        	// Trim trailing or leading '/' characters.
+	        	if(action.charAt(0) == '/') {
+	        		action = action.substring(1);
+	        	}
+	        	if(action.charAt(action.length() - 1) == '/') {
+	        		action = action.substring(0, action.length() - 1);
+	        	}
 	        }
+	        if(action.isEmpty()) {
+	        	response.sendError(500, "Badly Formed URL. Must designate an action.");
+	        	return;
+	        }
+	        
+	        System.out.println("Recieved Request to : \"" + action + "\"");
 	    	
 	        // Handle the action
 	        //
+	        System.out.println("Handling Request");
 	        ResponseInfo actionResponse = handleRequest(action, request.getParameterMap());
 	        
 	        // Write the response back to the client
@@ -56,7 +72,11 @@ public class BookmarkServlet extends HttpServlet {
 	        	writer.close();
 	        }
     	} catch (Exception e) {
-     		response.sendError(500, "Unknown Error: " + e.getMessage());
+    		System.out.println("Hit Unexpected Error:");
+    		System.out.println(e);
+    		System.out.println(e.getMessage());
+    		e.printStackTrace(System.out);
+     		response.sendError(500, "Unknown Error: " + e + " " + e.getMessage());
      	}
     }
     
@@ -80,10 +100,34 @@ public class BookmarkServlet extends HttpServlet {
     		return new ResponseInfo(501, "Intentional Error!");
     	
     	case(BEGIN_SESSION):
+    		System.out.println("Starting Session");
+    		for(String str : params.keySet()) {
+    			System.out.println(str);
+    		}
     		int teacherId = Integer.parseInt(params.get("teacher_id")[0]);
-			int classId = Integer.parseInt(params.get("class_id")[0]);
-        	return GameManager.beginSession(teacherId, classId);
+    		System.out.println("Teacher:" + teacherId);
+    		int classId = Integer.parseInt(params.get("class_id")[0]);
+    		System.out.println("Class: " + classId);
+    		return GameManager.beginSession(teacherId, classId);
     	
+    	case(LOGIN):
+    		String username = params.get("username")[0];
+    		String password = params.get("password")[0];
+    		int loginId = DatabaseManager.doLogin(username, password);
+    		if(loginId == -1) {
+    			return new ResponseInfo(400, "Invalid Login");
+    		} else {
+    			return new ResponseInfo(200, loginId + "");
+    		}
+    	case(GET_STUDENT_INFO):
+    		int studentId = Integer.parseInt(params.get("student_id")[0]);
+    		Student student = DatabaseManager.findStudentWithId(studentId);
+    		if(student == null) {
+    			return new ResponseInfo(400, "Invalid Student ID: " + studentId);
+    		} else {
+    			return new ResponseInfo(200, student.getXMLInfoString());
+    		}
+
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		

@@ -18,18 +18,20 @@ public class GameManager {
 		if(DatabaseManager.verifyTeacherClass(teacherId, classId)) {
 			// Create the session
 			//
+			System.out.println("Creating Session Object");
 			Session session = new Session(teacherId, -1); // -1 indicates use test content
+			System.out.println("Starting Session!");
 			session.startSession();
+			System.out.println("Session Started!");
 			activeSessions.add(session);
 			status = 200;
 			message = session.getGameBoardState(teacherId);
 		} else {
-			status = 500;
+			status = 401;
 			message = "You are not registered as the teacher for the requested class.";
 		}
 		
 		return new ResponseInfo(status, message);
 	}
-	
 	
 }

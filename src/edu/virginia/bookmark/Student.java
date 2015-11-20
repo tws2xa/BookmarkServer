@@ -17,5 +17,16 @@ public class Student extends Person {
 		return deck;
 	}
 	
+	/**
+	 * Get the XML info string representing the student.
+	 */
+	public String getXMLInfoString() {
+		String info = "<student>";
+		info += "<student_id>" + this.id + "</student_id>";
+		info += "<student_name>" + this.getName() + "</student_name>";
+		info += "</student>";
+		return info;
+	}
+	
 	
 }
