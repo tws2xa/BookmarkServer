@@ -38,6 +38,28 @@ public class DatabaseManager {
 	// --------------------------------------------------------------------------
 	// ---------------------------- GET STUDENT INFO ----------------------------
 	// --------------------------------------------------------------------------
+	/**
+	 * Finds the person with the given id.
+	 * @return The person if the id is found, null otherwise.
+	 */
+	public static Person findPersonWithId(int id) {
+		createTestContent();
+		if(id == 100) {
+			ArrayList<SchoolClass> teachClasses = new ArrayList<SchoolClass>();
+			teachClasses.add(testClass);
+			return new Teacher(100, "Teacher", teachClasses);
+		}
+		for(Student student : testStudents) {
+			if(student.id == id) {
+				return student;
+			}
+		}
+		return null;
+	}		
+	
+	// --------------------------------------------------------------------------
+	// ---------------------------- GET STUDENT INFO ----------------------------
+	// --------------------------------------------------------------------------
 	
 	/**
 	 * Uses the id to load the student's deck in from the database

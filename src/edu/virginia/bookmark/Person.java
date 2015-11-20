@@ -1,6 +1,6 @@
 package edu.virginia.bookmark;
 
-public class Person {
+public abstract class Person {
 	public int id;
 	private String name;
 	
@@ -15,4 +15,12 @@ public class Person {
 	public String getName() {
 		return name;
 	}
+
+	public String getPersonXMLInfoString() {
+		String info = "<person>";
+		info += "<name>" + this.getName() + "</name>";
+		info += "<id>" + this.id + "</id>";
+		info += "</person>";
+		return info;
+	};
 }

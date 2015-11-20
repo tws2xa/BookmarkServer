@@ -23,6 +23,8 @@ public class BookmarkServlet extends HttpServlet {
     private final String LOGIN = "login";
     private final String SHOW_ERROR = "show-error";
     private final String GET_STUDENT_INFO = "get-student-info";
+    private final String GET_PERSON_INFO = "get-person-info";
+    private final String IS_TEACHER = "is-teacher";
         
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -119,15 +121,30 @@ public class BookmarkServlet extends HttpServlet {
     		} else {
     			return new ResponseInfo(200, loginId + "");
     		}
+    	
     	case(GET_STUDENT_INFO):
     		int studentId = Integer.parseInt(params.get("student_id")[0]);
     		Student student = DatabaseManager.findStudentWithId(studentId);
     		if(student == null) {
     			return new ResponseInfo(400, "Invalid Student ID: " + studentId);
     		} else {
-    			return new ResponseInfo(200, student.getXMLInfoString());
+    			return new ResponseInfo(200, student.getStudentXMLInfoString());
     		}
-
+    	
+    	case(GET_PERSON_INFO):
+    		int personId = Integer.parseInt(params.get("id")[0]);
+    		Person person = DatabaseManager.findPersonWithId(personId);
+    		if(person == null) {
+    			return new ResponseInfo(400, "Invalid Person ID: " + personId);
+    		} else {
+    			return new ResponseInfo(200, person.getPersonXMLInfoString());
+    		}
+    			
+    	case(IS_TEACHER) :
+    		int givenId = Integer.parseInt(params.get("id")[0]);
+    		boolean isTeacher = DatabaseManager.verifyTeacher(givenId);
+    		return new ResponseInfo(200, isTeacher + "");
+    		
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		

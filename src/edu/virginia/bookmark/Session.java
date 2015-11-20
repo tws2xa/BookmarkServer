@@ -8,8 +8,7 @@ public class Session {
 	SchoolClass schoolClass;
 	ArrayList<Team> teams;
 
-	ArrayList<Integer> upToDateTeamIds;
-	boolean teacherUpToDate;
+	ArrayList<Integer> upToDateIds;
 	int activeTurnTeamId = -1;
 	
 	/**
@@ -36,8 +35,7 @@ public class Session {
 		System.out.println("Setting Team Positions.");
 		initializeTeamPositions();
 		System.out.println("Clearing Up To Date Status.");
-		upToDateTeamIds = new ArrayList<Integer>();
-		teacherUpToDate = false;
+		upToDateIds = new ArrayList<Integer>();
 	}
 	
 	/**
@@ -61,7 +59,7 @@ public class Session {
 	
 	/**
 	 * Gets an XML string representing the board state
-	 * @param requestId The id of the team requesting info. -1 if teacher.
+	 * @param requestId The id of the user requesting info.
 	 */
 	public String getGameBoardState(int requestId) {
 		markAsUpToDate(requestId);
@@ -74,30 +72,23 @@ public class Session {
 		}
 		
 		info += "</board_state>";
-		System.out.println("Returning:");
-		System.out.println(info);
 		return info;
 	}
 	
 	/**
 	 * Check if someone is up to date
-	 * @param id The id of the team to check. -1 if teacher.
 	 * @return True if up to date. False otherwise.
 	 */
 	public boolean isUpToDate(int id) {
-		if(id == -1) return teacherUpToDate;
-		return upToDateTeamIds.contains(id);
+		return upToDateIds.contains(id);
 	}
 	
 	/**
 	 * Mark a user as up to date.
-	 * @param id The team id. -1 if teacher.
 	 */
 	public void markAsUpToDate(int id) {
-		if(id != -1 ) {
-			teacherUpToDate = true;
-		} else if(!upToDateTeamIds.contains(id)) {
-			upToDateTeamIds.add(id);
+		if(!upToDateIds.contains(id)) {
+			upToDateIds.add(id);
 		}	
 	}
 	
@@ -105,7 +96,6 @@ public class Session {
 	 * Marks all users as not up to date.
 	 */
 	public void clearUpToDateStatus() {
-		upToDateTeamIds.clear();
-		teacherUpToDate = false;
+		upToDateIds.clear();
 	}
 }
