@@ -20,11 +20,14 @@ public class BookmarkServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private final String BEGIN_SESSION = "begin-session";
+    private final String JOIN_SESSION = "join-session";
     private final String LOGIN = "login";
     private final String SHOW_ERROR = "show-error";
     private final String GET_STUDENT_INFO = "get-student-info";
     private final String GET_PERSON_INFO = "get-person-info";
     private final String IS_TEACHER = "is-teacher";
+    private final String CHECK_BOARD_UPDATE = "check-board-update";
+    private final String GET_BOARD_STATE = "get-board-state";
         
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -107,11 +110,14 @@ public class BookmarkServlet extends HttpServlet {
     			System.out.println(str);
     		}
     		int teacherId = Integer.parseInt(params.get("teacher_id")[0]);
-    		System.out.println("Teacher:" + teacherId);
     		int classId = Integer.parseInt(params.get("class_id")[0]);
-    		System.out.println("Class: " + classId);
     		return GameManager.beginSession(teacherId, classId);
     	
+    	case(JOIN_SESSION):
+    		System.out.println("Joining Session");
+    		int joinSessionId = Integer.parseInt(params.get("id")[0]);
+    		return GameManager.joinSession(joinSessionId);
+    		
     	case(LOGIN):
     		String username = params.get("username")[0];
     		String password = params.get("password")[0];
@@ -141,9 +147,23 @@ public class BookmarkServlet extends HttpServlet {
     		}
     			
     	case(IS_TEACHER) :
-    		int givenId = Integer.parseInt(params.get("id")[0]);
-    		boolean isTeacher = DatabaseManager.verifyTeacher(givenId);
+    		int givenIsTeacherId = Integer.parseInt(params.get("id")[0]);
+    		boolean isTeacher = DatabaseManager.verifyTeacher(givenIsTeacherId);
     		return new ResponseInfo(200, isTeacher + "");
+    		
+    	case (CHECK_BOARD_UPDATE):
+    		int givenCheckBoardId = Integer.parseInt(params.get("id")[0]);
+    		boolean needUpdate = GameManager.checkNeedUpdate(givenCheckBoardId);
+    		return new ResponseInfo(200, needUpdate + "");
+    	
+    	case(GET_BOARD_STATE):
+    		int givenGetBoardStateId = Integer.parseInt(params.get("id")[0]);
+    		String boardStateXML = GameManager.getBoardStateXML(givenGetBoardStateId);
+    		if(boardStateXML == null) {
+    			return new ResponseInfo(400, "No session with id: " + givenGetBoardStateId);
+    		} else {
+    			return new ResponseInfo(200, boardStateXML);
+    		}
     		
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);

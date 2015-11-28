@@ -154,6 +154,12 @@ public class DatabaseManager {
 	public static ArrayList<Student> testStudents;
 	
 	public static void createTestContent() {
+		if(testClass != null) {
+			testClass.getTeams().clear();
+		}
+		testClass = null;
+		testStudents = null;
+		
 		System.out.println("Creating Cards.");
 		// Create 12 cards
 		//

@@ -79,4 +79,16 @@ public class Team {
 	public String getName() {
 		return name;
 	}
+
+	/**
+	 * Checks if the team contains a student with the given id.
+	 */
+	public boolean containsStudentWithId(int id) {
+		for(Student student : students) {
+			if(student.id == id) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

@@ -80,7 +80,10 @@ public class Session {
 	 * @return True if up to date. False otherwise.
 	 */
 	public boolean isUpToDate(int id) {
-		return upToDateIds.contains(id);
+		System.out.println("Checking if ID (" + id + ") is up to date");
+		boolean upToDate = upToDateIds.contains(id);
+		System.out.println("Up To Date: " + upToDate);
+		return upToDate;
 	}
 	
 	/**
@@ -88,6 +91,7 @@ public class Session {
 	 */
 	public void markAsUpToDate(int id) {
 		if(!upToDateIds.contains(id)) {
+			System.out.println("Marking ID (" + id + ") as up to date.");
 			upToDateIds.add(id);
 		}	
 	}
@@ -96,6 +100,38 @@ public class Session {
 	 * Marks all users as not up to date.
 	 */
 	public void clearUpToDateStatus() {
+		System.out.println("Clearing Up To Date Status.");
 		upToDateIds.clear();
+	}
+
+	/**
+	 * Checks if the given person is a user within this session.
+	 */
+	public boolean containsPersonWithId(int id) {
+		if(id == teacherId) {
+			return true;
+		}
+		for(Team team : teams) {
+			if(team.containsStudentWithId(id)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Adds the student with the given ID to the session.
+	 */
+	public void addStudentWithId(int id) {
+		// if(this.activeTurnTeamId == -1) {
+			for(Team team : teams) {
+				if(team.containsStudentWithId(id)) {
+					System.out.println("Adding a Student From Team " + team.getName());
+					activeTurnTeamId = team.id;
+					clearUpToDateStatus();
+					return;
+				}
+			}
+		// }
 	}
 }
