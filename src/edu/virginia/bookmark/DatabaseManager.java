@@ -155,8 +155,9 @@ public class DatabaseManager {
 	
 	public static void createTestContent() {
 		if(testClass != null) {
-			testClass.getTeams().clear();
+			return; // Already created
 		}
+		
 		testClass = null;
 		testStudents = null;
 		

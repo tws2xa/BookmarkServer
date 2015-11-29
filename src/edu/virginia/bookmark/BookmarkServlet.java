@@ -28,7 +28,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String IS_TEACHER = "is-teacher";
     private final String CHECK_BOARD_UPDATE = "check-board-update";
     private final String GET_BOARD_STATE = "get-board-state";
-        
+            
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     	try {
@@ -59,11 +59,10 @@ public class BookmarkServlet extends HttpServlet {
 	        	return;
 	        }
 	        
-	        System.out.println("Recieved Request to : \"" + action + "\"");
+	        System.out.println("Received Request to : \"" + action + "\"");
 	    	
 	        // Handle the action
 	        //
-	        System.out.println("Handling Request");
 	        ResponseInfo actionResponse = handleRequest(action, request.getParameterMap());
 	        
 	        // Write the response back to the client
@@ -100,6 +99,10 @@ public class BookmarkServlet extends HttpServlet {
      * @return The response to send to the client
      */
     public ResponseInfo handleRequest(String action, Map<String, String[]> params) {
+    	System.out.print("\t Parameters: ");
+    	for(String param : params.keySet()) {
+    		System.out.print("\"" + param + ": " + params.get(param) + "\"");
+    	}
     	switch(action) {
     	case (SHOW_ERROR):
     		return new ResponseInfo(501, "Intentional Error!");

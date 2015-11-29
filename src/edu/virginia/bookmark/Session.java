@@ -21,6 +21,7 @@ public class Session {
 			this.schoolClass = DatabaseManager.loadClass(classId);
 		} else {
 			DatabaseManager.createTestContent();
+			System.out.println("Using Test Class");
 			this.schoolClass = DatabaseManager.testClass;
 		}
 		this.teams = this.schoolClass.getTeams();
