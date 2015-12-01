@@ -18,7 +18,8 @@ import org.apache.catalina.util.RequestUtil;
 public class BookmarkServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-
+    
+    private final String DATABASE_TEST = "database-test";
     private final String BEGIN_SESSION = "begin-session";
     private final String JOIN_SESSION = "join-session";
     private final String LOGIN = "login";
@@ -167,6 +168,10 @@ public class BookmarkServlet extends HttpServlet {
     		} else {
     			return new ResponseInfo(200, boardStateXML);
     		}
+    	
+    	case(DATABASE_TEST) :
+    		DatabaseManager.InitializeDB();
+    		return new ResponseInfo(200, "Tried to do a thing. Check TomCat Output.");
     		
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);

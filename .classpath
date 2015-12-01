@@ -26,5 +26,6 @@
 	<classpathentry kind="lib" path="lib/tomcat-util.jar"/>
 	<classpathentry kind="lib" path="lib/tomcat-websocket.jar"/>
 	<classpathentry kind="lib" path="lib/websocket-api.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Thoma_000/workspace/BookmarkBackend/lib/mysql-connector-java-5.1.37-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

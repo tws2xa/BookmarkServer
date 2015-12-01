@@ -1,9 +1,105 @@
 package edu.virginia.bookmark;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
 import java.util.ArrayList;
+
+/******
+ * 
+ * DATABASE SCHEMA
+ * 
+ * Table: People
+ * 		[int PersonID unique][char(120) PersonName]
+ * 
+ * Table: Classes
+ * 		[int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID]
+ * 
+ * Table: Teams
+ * 		[int TeamID unique][char(120) TeamName][int ClassID]
+ * 
+ * Table: ClassStudents
+ * 		[int ClassID][int StudentID]
+ * 
+ * Table: TeamStudents
+ * 		[int TeamID][int StudentID]
+ * 
+ * Table: Cards
+ * 		[int CardID unique][int PersonID][char(120) CardType][text CardBody][int PageStart][int PageEnd]
+ * 
+ * Table: Chains
+ * 		[int ChainID][int ArgumentCardID]
+ * 
+ * Table: ChainCards
+ *		[int ChainID][int CardID]
+ * 
+ * Table: CardLinks
+ * 		[int ChainID][int Card1ID][int Card2ID]
+ *
+ ******/
+
+
+
 
 public class DatabaseManager {
 
+	/**
+	 * Clears all database content and re-initializes everything.
+	 */
+	public static void InitializeDB() {
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet resultSet = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+		
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery("SELECT VERSION()");
+			
+			if(resultSet.next()) {
+				System.out.println(resultSet.getString(1));
+			}
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Initialize: " + ex.getMessage());
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+				}
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Initialzie Finally: " + ex.getMessage());
+			}
+		}
+	}
+	
+	
 	// --------------------------------------------------------------------------
 	// ------------------------- GET SCHOOL CLASS INFO --------------------------
 	// --------------------------------------------------------------------------
