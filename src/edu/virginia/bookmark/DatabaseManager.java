@@ -62,7 +62,6 @@ public class DatabaseManager {
 		MysqlDataSource datasource = null;
 		Connection connection = null;
 		Statement statement = null;
-		ResultSet resultSet = null;
 		
 		String url="jdbc:mysql://localhost:3306/bookmarkdb";
 		String user="Bookmark";
@@ -75,18 +74,74 @@ public class DatabaseManager {
 			datasource.setPassword(password);
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
-			resultSet = statement.executeQuery("SELECT VERSION()");
 			
-			if(resultSet.next()) {
-				System.out.println(resultSet.getString(1));
-			}
+			// Drop any current tables
+			statement.executeUpdate("DROP TABLE IF EXISTS People");
+			statement.executeUpdate("DROP TABLE IF EXISTS Classes");
+			statement.executeUpdate("DROP TABLE IF EXISTS Teams");
+			statement.executeUpdate("DROP TABLE IF EXISTS ClassStudents");
+			statement.executeUpdate("DROP TABLE IF EXISTS TeamStudents");
+			statement.executeUpdate("DROP TABLE IF EXISTS Cards");
+			statement.executeUpdate("DROP TABLE IF EXISTS Chains");
+			statement.executeUpdate("DROP TABLE IF EXISTS CardChains");
+			statement.executeUpdate("DROP TABLE IF EXISTS CardLinks");
+			
+			// People
+			// [int PersonID unique][char(120) PersonName]
+			//
+			statement.executeUpdate("CREATE TABLE People "
+					+ "(PersonID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
+					+ "PersonName CHAR(120) NOT NULL);");
+				
+			// Classes
+			// [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID]
+			statement.executeUpdate("CREATE TABLE Classes "
+					+ "(ClassID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
+					+ "ClassName CHAR(120) NOT NULL, "
+					+ "ClassInfo TEXT, "
+					+ "TeacherID INT NOT NULL);");
+			
+			// Teams
+			// [int TeamID unique][char(120) TeamName][int ClassID]
+			statement.executeUpdate("CREATE TABLE Teams "
+					+ "(TeamID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
+					+ "TeamName CHAR(120) NOT NULL, "
+					+ "ClassID INT NOT NULL);");
+			  
+			// ClassStudents
+			// [int ClassID][int StudentID]
+			statement.executeUpdate("CREATE TABLE ClassStudents (ClassID INT NOT NULL, StudentID INT NOT NULL);");
+			 
+			// TeamStudents
+			// [int TeamID][int StudentID]
+			statement.executeUpdate("CREATE TABLE TeamStudents (TeamID INT NOT NULL, StudentID INT NOT NULL);");
+			
+			// Cards
+			// [int CardID unique][int PersonID][char(120) CardType][text CardBody][int PageStart][int PageEnd]
+			statement.executeUpdate("CREATE TABLE Cards "
+					+ "(CardID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
+					+ "PersonID INT NOT NULL, "
+					+ "CardType CHAR(120) NOT NULL, "
+					+ "CardBody TEXT, "
+					+ "PageStart INT, "
+					+ "PageEnd INT);");
+			 
+			// Table: Chains
+			// [int ChainID][int ArgumentCardID]
+			statement.executeUpdate("CREATE TABLE Chains (ChainID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ArgumentCardID INT NOT NULL);");
+			 
+			// ChainCards
+			// [int ChainID][int CardID]
+			statement.executeUpdate("CREATE TABLE ChainCards (ChainID INT NOT NULL, CardID INT NOT NULL);");
+			 
+			// CardLinks
+			// [int ChainID][int Card1ID][int Card2ID]
+			statement.executeUpdate("CREATE TABLE CardLinks (ChainID INT NOT NULL, Card1ID INT NOT NULL, Card2ID INT NOT NULL);");
+			
 		} catch(SQLException ex) {
 			System.out.println("SQL Exception in Initialize: " + ex.getMessage());
 		} finally {
 			try {
-				if(resultSet != null) {
-					resultSet.close();
-				}
 				if(statement != null) {
 					statement.close();
 				}

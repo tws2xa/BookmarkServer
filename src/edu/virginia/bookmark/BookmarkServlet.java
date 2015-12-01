@@ -104,6 +104,8 @@ public class BookmarkServlet extends HttpServlet {
     	for(String param : params.keySet()) {
     		System.out.print("\"" + param + ": " + params.get(param) + "\"");
     	}
+    	System.out.println("");
+    	
     	switch(action) {
     	case (SHOW_ERROR):
     		return new ResponseInfo(501, "Intentional Error!");
