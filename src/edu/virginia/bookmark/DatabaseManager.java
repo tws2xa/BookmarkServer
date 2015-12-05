@@ -48,6 +48,9 @@ import java.util.ArrayList;
  * Table: CardLinks
  * 		[int ChainID][int Card1ID][int Card2ID]
  *
+ *
+ * ADD TIME STAMPS
+ * ADD CLASS ID TO CARD
  ******/
 
 

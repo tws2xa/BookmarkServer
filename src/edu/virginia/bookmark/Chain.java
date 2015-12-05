@@ -11,5 +11,4 @@ public class Chain {
 		this.cards = cards;
 		this.links = links;
 	}
-	
 }
