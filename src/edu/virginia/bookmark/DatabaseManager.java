@@ -344,6 +344,7 @@ public class DatabaseManager {
 		testStudents.add(new Student(107, "Sylvester McCoy", new ArrayList<Card>(cards.subList(10, 12))));
 		
 		System.out.println("Creating Teams");
+		
 		// Create 3 Teams for Students
 		//
 		ArrayList<Team> teams = new ArrayList<Team>();

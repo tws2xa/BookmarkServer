@@ -59,6 +59,15 @@ public class GameManager {
 		
 		return new ResponseInfo(status, message);
 	}
+	
+	/**
+	 * Handle Chain Submission
+	 */
+	public static ResponseInfo submitChain(int id, Chain chain) {
+		System.out.println("Chain Submission: ");
+		System.out.println(chain);
+		return new ResponseInfo(200, "All Good");
+	}
 
 	/**
 	 * Checks if the user with the given id needs to update the board view.

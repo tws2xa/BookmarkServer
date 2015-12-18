@@ -29,6 +29,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String IS_TEACHER = "is-teacher";
     private final String CHECK_BOARD_UPDATE = "check-board-update";
     private final String GET_BOARD_STATE = "get-board-state";
+    private final String SUBMIT_CHAIN = "submit-chain";
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -106,7 +107,7 @@ public class BookmarkServlet extends HttpServlet {
     public ResponseInfo handleRequest(String action, Map<String, String[]> params) {
     	System.out.print("\t Parameters: ");
     	for(String param : params.keySet()) {
-    		System.out.print("\"" + param + ": " + params.get(param) + "\"");
+    		System.out.print("\"" + param + ": " + params.get(param)[0] + "\" ");
     	}
     	System.out.println("");
     	
@@ -178,6 +179,13 @@ public class BookmarkServlet extends HttpServlet {
     	case(DATABASE_TEST) :
     		DatabaseManager.InitializeDB();
     		return new ResponseInfo(200, "Tried to do a thing. Check TomCat Output.");
+    	
+    	case(SUBMIT_CHAIN):
+    		int id = Integer.parseInt(params.get("id")[0]);
+    		
+    		String chainXML = params.get("chain_xml")[0];
+    		Chain chain = Chain.generateChainFromXML(chainXML);
+    		return GameManager.submitChain(id, chain);
     		
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);

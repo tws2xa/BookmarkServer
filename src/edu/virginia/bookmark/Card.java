@@ -42,6 +42,17 @@ public class Card {
 		return xmlStr;
 	}
 
+	public static Card createCardFromXMLElement(Element cardData) {
+		int newId = XMLHelper.getIntValue(cardData, "id");
+		String newTypeStr = XMLHelper.getTextValue(cardData, "type");
+		String newBodyText = XMLHelper.getTextValue(cardData, "body_text");
+		int newPageStart = XMLHelper.getIntValue(cardData, "page_start");
+		int newPageEnd = XMLHelper.getIntValue(cardData, "page_end");
+		
+		CardType newType = getCardTypeFromString(newTypeStr);
+		
+		return new Card(newId, newType, newBodyText, newPageStart, newPageEnd);
+	}
 
 	public static Card createCardFromXML(String xmlData) {
 		try {
@@ -61,15 +72,7 @@ public class Card {
 			// Get Card ID
 			//
 			Element cardData = (Element) allCards.item(0);
-			int newId = getIntValue(cardData, "id");
-			String newTypeStr = getTextValue(cardData, "type");
-			String newBodyText = getTextValue(cardData, "body_text");
-			int newPageStart = getIntValue(cardData, "page_start");
-			int newPageEnd = getIntValue(cardData, "page_end");
-			
-			CardType newType = getCardTypeFromString(newTypeStr);
-			
-			return new Card(newId, newType, newBodyText, newPageStart, newPageEnd);
+			return createCardFromXMLElement(cardData);
 		} catch (SAXException e) {
 			System.out.println("SAXException Parsing Card XML: " + e.getMessage());
 			e.printStackTrace();
@@ -81,29 +84,6 @@ public class Card {
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	/**
-	 * Get a text value from an xml element
-	 */
-	private static String getTextValue(Element element, String tagName) {
-		String textVal = null;
-		
-		NodeList nodeList = element.getElementsByTagName(tagName);
-		if(nodeList != null && nodeList.getLength() > 0) {
-			Element el = (Element)nodeList.item(0);
-			textVal = el.getFirstChild().getNodeValue();
-		}
-
-		return textVal;
-	}
-
-	/**
-	 * Get an int value from an xml element
-	 */
-	private static int getIntValue(Element ele, String tagName) {
-		//in production application you would catch the exception
-		return Integer.parseInt(getTextValue(ele,tagName));
 	}
 	
 	public static CardType getCardTypeFromString(String str) {
