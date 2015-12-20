@@ -44,6 +44,44 @@ public class Chain {
 	}
 	
 	/**
+	 * Create the xml string to represent this chain.
+	 */
+	public String generateChainXML() {
+		String xmlStr = "<chain>";
+
+		// Card Info (Card and position)
+		xmlStr += "<cards>";
+		for(Card card : cards.keySet()) {
+			xmlStr += "<card_info>";
+			Point pos = this.cards.get(card);
+			
+			xmlStr += card.generateCardXML(); // <card> ... </card>
+
+			xmlStr += "<position>";
+			xmlStr += "<x>" + pos.getX() + "</x>";
+			xmlStr += "<y>" + pos.getY() + "</y>";
+			xmlStr += "</position>";
+
+			xmlStr += "</card_info>";
+		}
+		xmlStr += "</cards>";
+
+		xmlStr += "<links>";
+		for(int i=0; i<this.links.size(); i++) {
+			xmlStr += "<link>";
+			xmlStr += "<card1_id>" + this.links.get(i)[0] + "</card1_id>";
+			xmlStr += "<card2_id>" + this.links.get(i)[1] + "</card2_id>";
+	        xmlStr += "</link>";
+	    }
+	    xmlStr += "</links>";
+
+
+		xmlStr += "</chain>";
+
+		return xmlStr;
+	}
+	
+	/**
 	 * Create a new chain from an XML string
 	 */
 	public static Chain generateChainFromXML(String xmlStr) {
