@@ -6,9 +6,18 @@ public class SchoolClass {
 	public int id;
 	private ArrayList<Team> teams;
 
-	public SchoolClass(int id, ArrayList<Team> teams) {
+	public SchoolClass(int id) {
 		this.id = id;
-		this.teams = teams;
+		this.teams = loadTeamsFromDB();
+	}
+	
+	private ArrayList<Team> loadTeamsFromDB() {
+		ArrayList<Integer> teamIds = DatabaseManager.getClassTeamIds(id);
+		ArrayList<Team> retTeams = new ArrayList<Team>();
+		for(int teamId : teamIds) {
+			retTeams.add(new Team(teamId));
+		}
+		return retTeams;
 	}
 	
 	/**

@@ -19,7 +19,7 @@ public class GameManager {
 			// Create the session
 			//
 			System.out.println("Creating Session Object");
-			Session session = new Session(teacherId, -1); // -1 indicates use test content
+			Session session = new Session(teacherId, classId);
 			System.out.println("Starting Session!");
 			session.startSession();
 			System.out.println("Session Started!");
@@ -105,5 +105,12 @@ public class GameManager {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Finds the card with the given id
+	 */
+	public static Card getCardWithId(int id) {
+		return new Card(id);
 	}
 }

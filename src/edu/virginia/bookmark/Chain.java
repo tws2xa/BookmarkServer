@@ -111,7 +111,8 @@ public class Chain {
 			for(int i=0; i<cardInfoList.getLength(); i++) {
 				Element cardInfo = (Element) cardInfoList.item(i);
 				Element cardElement = XMLHelper.getSingleNodeElement(cardInfo, "card");
-				Card card = Card.createCardFromXMLElement(cardElement);
+				int cardId = XMLHelper.getIntValue(cardElement, "id");
+				Card card = GameManager.getCardWithId(cardId);
 				Element positionElement = XMLHelper.getSingleNodeElement(cardInfo, "position");
 				int xPos = XMLHelper.getIntValue(positionElement, "x");
 				int yPos = XMLHelper.getIntValue(positionElement, "y");

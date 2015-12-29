@@ -5,9 +5,18 @@ import java.util.ArrayList;
 public class Student extends Person {
 	private ArrayList<Card> deck;
 	
-	public Student(int id, String name, ArrayList<Card> deck) {
-		super(id, name);
-		this.deck = deck;
+	public Student(int id) {
+		super(id, DatabaseManager.getPersonName(id));
+		this.deck = loadStudentDeckFromDB();
+	}
+	
+	private ArrayList<Card> loadStudentDeckFromDB() {
+		ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(id);
+		ArrayList<Card> retDeck = new ArrayList<Card>();
+		for(int cardId : cardIds) {
+			retDeck.add(new Card(cardId));
+		}
+		return retDeck;
 	}
 	
 	/**

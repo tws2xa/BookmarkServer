@@ -10,10 +10,19 @@ public class Team {
 	ArrayList<Student> students;
 	Point position;
 	
-	public Team(int id, String name, ArrayList<Student> students) {
+	public Team(int id) {
 		this.id = id;
-		this.name = name;
-		this.students = students;
+		this.name = DatabaseManager.getTeamName(id);
+		this.students = loadStudentsFromDB();
+	}
+	
+	private ArrayList<Student> loadStudentsFromDB() {
+		ArrayList<Integer> studentIds = DatabaseManager.loadTeamStudentIds(id);
+		ArrayList<Student> retStudents = new ArrayList<Student>();
+		for(int studentId : studentIds) {
+			retStudents.add(new Student(studentId));
+		}
+		return retStudents;
 	}
 	
 	/**

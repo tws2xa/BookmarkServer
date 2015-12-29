@@ -17,13 +17,7 @@ public class Session {
 	 */
 	public Session(int teacherId, int classId) {
 		this.teacherId = teacherId;
-		if(classId != -1) {
-			this.schoolClass = DatabaseManager.loadClass(classId);
-		} else {
-			DatabaseManager.createTestContent();
-			System.out.println("Using Test Class");
-			this.schoolClass = DatabaseManager.testClass;
-		}
+		this.schoolClass = new SchoolClass(classId);
 		this.teams = this.schoolClass.getTeams();
 	}
 	

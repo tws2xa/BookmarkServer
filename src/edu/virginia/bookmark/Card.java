@@ -5,6 +5,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.w3c.dom.*;
 import java.io.*;
+import java.util.HashMap;
 
 public class Card {
 	
@@ -23,12 +24,14 @@ public class Card {
 	private int pageStart;
 	private int pageEnd;
 	
-	public Card(int id, CardType type, String bodyText, int pageStart, int pageEnd) {
+	public Card(int id) {
 		this.id = id;
-		this.type = type;
-		this.bodyText = bodyText;
-		this.pageStart = pageStart;
-		this.pageEnd = pageEnd;
+		
+		HashMap<String, Object> cardProperties = DatabaseManager.getCardProperties(id);
+		this.type = (CardType)cardProperties.get("type");
+		this.bodyText = (String)cardProperties.get("bodyText");
+		this.pageStart = (int)cardProperties.get("pageStart");
+		this.pageEnd = (int)cardProperties.get("pageEnd");
 	}
 
 	public String generateCardXML() {
@@ -42,6 +45,7 @@ public class Card {
 		return xmlStr;
 	}
 
+	/*
 	public static Card createCardFromXMLElement(Element cardData) {
 		int newId = XMLHelper.getIntValue(cardData, "id");
 		String newTypeStr = XMLHelper.getTextValue(cardData, "type");
@@ -53,6 +57,7 @@ public class Card {
 		
 		return new Card(newId, newType, newBodyText, newPageStart, newPageEnd);
 	}
+	
 
 	public static Card createCardFromXML(String xmlData) {
 		try {
@@ -85,6 +90,7 @@ public class Card {
 		}
 		return null;
 	}
+	*/
 	
 	public static CardType getCardTypeFromString(String str) {
 		str = str.toLowerCase();

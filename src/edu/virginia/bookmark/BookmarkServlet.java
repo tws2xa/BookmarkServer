@@ -26,6 +26,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String SHOW_ERROR = "show-error";
     private final String GET_STUDENT_INFO = "get-student-info";
     private final String GET_PERSON_INFO = "get-person-info";
+    private final String GET_PERSON_NAME = "get-person-name";
     private final String IS_TEACHER = "is-teacher";
     private final String CHECK_BOARD_UPDATE = "check-board-update";
     private final String GET_BOARD_STATE = "get-board-state";
@@ -122,6 +123,14 @@ public class BookmarkServlet extends HttpServlet {
     		}
     		int teacherId = Integer.parseInt(params.get("teacher_id")[0]);
     		int classId = Integer.parseInt(params.get("class_id")[0]);
+    		if(classId == -1) {
+    			ArrayList<Integer> classes = DatabaseManager.loadTeacherClassIds(teacherId);
+    			if(classes.size() > 0) {
+    				classId = classes.get(0);
+    			}
+    			
+    			System.out.println("CAUTION: ASSUMING ONE CLASS PER TEACHER. DOES NOT ALLOW TEACHER TO CHOOSE CLASS!");
+    		}
     		return GameManager.beginSession(teacherId, classId);
     	
     	case(JOIN_SESSION):
@@ -140,23 +149,16 @@ public class BookmarkServlet extends HttpServlet {
     		}
     	
     	case(GET_STUDENT_INFO):
-    		int studentId = Integer.parseInt(params.get("student_id")[0]);
-    		Student student = DatabaseManager.findStudentWithId(studentId);
-    		if(student == null) {
-    			return new ResponseInfo(400, "Invalid Student ID: " + studentId);
-    		} else {
-    			return new ResponseInfo(200, student.getStudentXMLInfoString());
-    		}
+    		return new ResponseInfo(400, "GET STUDENT INFO NOT IMPLEMENTED");
     	
     	case(GET_PERSON_INFO):
-    		int personId = Integer.parseInt(params.get("id")[0]);
-    		Person person = DatabaseManager.findPersonWithId(personId);
-    		if(person == null) {
-    			return new ResponseInfo(400, "Invalid Person ID: " + personId);
-    		} else {
-    			return new ResponseInfo(200, person.getPersonXMLInfoString());
-    		}
+    		return new ResponseInfo(400, "GET PERSON INFO NOT IMPLEMENTED");
     			
+    	case(GET_PERSON_NAME):
+    		int personNameId = Integer.parseInt(params.get("id")[0]);
+    		String name = DatabaseManager.getPersonName(personNameId);
+    		return new ResponseInfo(200, name);
+    		
     	case(IS_TEACHER) :
     		int givenIsTeacherId = Integer.parseInt(params.get("id")[0]);
     		boolean isTeacher = DatabaseManager.verifyTeacher(givenIsTeacherId);
@@ -181,11 +183,11 @@ public class BookmarkServlet extends HttpServlet {
     		return new ResponseInfo(200, "Tried to do a thing. Check TomCat Output.");
     	
     	case(SUBMIT_CHAIN):
-    		int id = Integer.parseInt(params.get("id")[0]);
+    		int submitChainId = Integer.parseInt(params.get("id")[0]);
     		
     		String chainXML = params.get("chain_xml")[0];
     		Chain chain = Chain.generateChainFromXML(chainXML);
-    		return GameManager.submitChain(id, chain);
+    		return GameManager.submitChain(submitChainId, chain);
     		
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
