@@ -31,6 +31,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String CHECK_BOARD_UPDATE = "check-board-update";
     private final String GET_BOARD_STATE = "get-board-state";
     private final String SUBMIT_CHAIN = "submit-chain";
+    private final String GET_STUDENT_DECK = "get-student-deck";
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -188,11 +189,31 @@ public class BookmarkServlet extends HttpServlet {
     		String chainXML = params.get("chain_xml")[0];
     		Chain chain = Chain.generateChainFromXML(chainXML);
     		return GameManager.submitChain(submitChainId, chain);
-    		
+    	
+    	case(GET_STUDENT_DECK):
+    		int getDeckStudentId = Integer.parseInt("id");
+    		int getDeckClassId = Integer.parseInt("classId");
+    		String studentDeckXML = getStudentDeckXML(getDeckStudentId, getDeckClassId);
+    		return new ResponseInfo(200, studentDeckXML);
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		
     	}
+    }
+    
+    /**
+     * Generates xml representing a student's deck.
+     * @param studentId The id of the student whose deck we are looking up
+     */
+    private String getStudentDeckXML(int studentId, int classId) {
+    	ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(studentId, classId);
+    	String xml = "<deck>";
+    	for(int cardId : cardIds) {
+			Card card = new Card(cardId);
+			xml += card.generateCardXML();
+		}
+    	xml += "</deck>";
+    	return xml;
     }
     	
 	

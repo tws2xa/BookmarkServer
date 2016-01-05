@@ -108,6 +108,14 @@ public class GameManager {
 	}
 	
 	/**
+	 * Gets the id of the class running the active session
+	 * containing the given person id.
+	 */
+	public static int getActiveClassId(int id) {
+		return getSessionWithId(id).schoolClass.id;
+	}
+	
+	/**
 	 * Finds the card with the given id
 	 */
 	public static Card getCardWithId(int id) {

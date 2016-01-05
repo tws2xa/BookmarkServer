@@ -11,7 +11,7 @@ public class Student extends Person {
 	}
 	
 	private ArrayList<Card> loadStudentDeckFromDB() {
-		ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(id);
+		ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(id, GameManager.getActiveClassId(id));
 		ArrayList<Card> retDeck = new ArrayList<Card>();
 		for(int cardId : cardIds) {
 			retDeck.add(new Card(cardId));

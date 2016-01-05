@@ -40,7 +40,7 @@ import java.util.HashMap;
  * 		[int TeamID][int StudentID][TimeStamp TIMESTAMP]
  * 
  * Table: Cards
- * 		[int CardID unique][int PersonID][int classID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
+ * 		[int CardID unique][int PersonID][int ClassID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
  * 
  * Table: Chains
  * 		[int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]
@@ -223,16 +223,56 @@ public class DatabaseManager {
 	// --------------------------------------------------------------------------
 	
 	public static HashMap<String, Object> getCardProperties(int cardId) {
-		CardType type = CardType.Argument;
-		String bodyText = "Default Body Text";
-		int pageStart = -1;
-		int pageEnd = -1;
-		
 		HashMap<String, Object> cardProperties = new HashMap<String, Object>();
-		cardProperties.put("type", type);
-		cardProperties.put("bodyText", bodyText);
-		cardProperties.put("pageStart", pageStart);
-		cardProperties.put("pageEnd", pageEnd);
+
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+			
+			// Table: Cards
+			// [int CardID unique][int PersonID][int ClassID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
+					 
+			String query = "SELECT * FROM Cards WHERE CardID=" + cardId + ";";
+			ResultSet results = statement.executeQuery(query);
+			
+			if(results.next()) {
+				// Found Match
+				CardType type = CardType.valueOf(results.getString("CardType").trim());
+				String bodyText = results.getString("CardBody").trim();
+				int pageStart = results.getInt("PageStart");
+				int pageEnd = results.getInt("PageEnd");
+				
+				cardProperties.put("type", type);
+				cardProperties.put("bodyText", bodyText);
+				cardProperties.put("pageStart", pageStart);
+				cardProperties.put("pageEnd", pageEnd);
+			}
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Get Card Properties: " + ex.getMessage());
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Get Card Properties Finally: " + ex.getMessage());
+			}
+		}
 		
 		return cardProperties;
 	}
@@ -256,8 +296,47 @@ public class DatabaseManager {
 	/**
 	 * Uses the id to lookup the id's of every card in the student's deck. 
 	 */
-	public static ArrayList<Integer> loadStudentDeckIds(int studentId) {
-		return new ArrayList<Integer>();
+	public static ArrayList<Integer> loadStudentDeckIds(int studentId, int classId) {
+		ArrayList<Integer> cardIds = new ArrayList<Integer>();	
+		
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+				
+			
+			ResultSet results = statement.executeQuery("SELECT CardID FROM Classes WHERE PersonID=" + studentId + " AND ClassID=" + classId + ";");
+			while(results.next()) {
+				cardIds.add(results.getInt("CardID"));
+			}
+			
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Load Student Deck IDs: " + ex.getMessage());
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Load Student Deck IDs Finally: " + ex.getMessage());
+			}
+		}
+		
+		return cardIds;
 	}
 	
 	// --------------------------------------------------------------------------
