@@ -32,6 +32,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String GET_BOARD_STATE = "get-board-state";
     private final String SUBMIT_CHAIN = "submit-chain";
     private final String GET_STUDENT_DECK = "get-student-deck";
+    private final String GET_TEAM_DECK = "get-team-deck";
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -142,13 +143,16 @@ public class BookmarkServlet extends HttpServlet {
     	case(LOGIN):
     		String username = params.get("username")[0];
     		String password = params.get("password")[0];
+         
     		int loginId = DatabaseManager.doLogin(username, password);
     		if(loginId == -1) {
     			return new ResponseInfo(400, "Invalid Login");
     		} else {
     			return new ResponseInfo(200, loginId + "");
     		}
-    	
+    	   
+
+
     	case(GET_STUDENT_INFO):
     		return new ResponseInfo(400, "GET STUDENT INFO NOT IMPLEMENTED");
     	
@@ -195,6 +199,13 @@ public class BookmarkServlet extends HttpServlet {
     		int getDeckClassId = Integer.parseInt("classId");
     		String studentDeckXML = getStudentDeckXML(getDeckStudentId, getDeckClassId);
     		return new ResponseInfo(200, studentDeckXML);
+
+        case(GET_TEAM_DECK):
+            int getTeamDeckId = Integer.parseInt("id");
+            int getTDeckClassId = Integer.parseInt("classId");
+            String teamDeckXML = getTeamDeckXML(getTeamDeckId, getTDeckClassId);
+            return new ResponseInfo(200, teamDeckXML);
+
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		
@@ -216,5 +227,24 @@ public class BookmarkServlet extends HttpServlet {
     	return xml;
     }
     	
+    /* Generates xml for a team's Deck.
+    */
+    private String getTeamDeckXML(int teamId, int classId) {
+        //get students, take each student's Deck XML, cocatenate on string
+
+       
+       ArrayList<Integer> teamIds = DatabaseManager.loadTeamStudentIds(teamId, classId);
+
+        String xml = "<team_deck>";
+
+         for(int studentId : teamIds) {
+             String deck = getStudentDeckXML(studentId, classId);
+            xml += deck;
+            }
+
+         xml += "</team_deck>";
+         return xml;
+    }
+        
 	
 }
