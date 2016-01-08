@@ -316,7 +316,7 @@ public class DatabaseManager {
 			statement = connection.createStatement();
 				
 			
-			ResultSet results = statement.executeQuery("SELECT CardID FROM Classes WHERE PersonID=" + studentId + " AND ClassID=" + classId + ";");
+			ResultSet results = statement.executeQuery("SELECT CardID FROM Cards WHERE PersonID=" + studentId + " AND ClassID=" + classId + ";");
 			while(results.next()) {
 				cardIds.add(results.getInt("CardID"));
 			}
@@ -337,6 +337,14 @@ public class DatabaseManager {
 		}
 		
 		return cardIds;
+	}
+	
+	public static int getClassContainingStudent(int id) {
+		String query = "SELECT Classes.ClassID AS LookupID "
+				+ "FROM Classes, ClassStudents "
+				+ "WHERE (Classes.ClassID=ClassStudents.ClassID AND ClassStudents.StudentID=" + id + ");";
+		int classId = DatabaseManager.getIntFromDB("GET CLASS CONTAINING STUDENT", query, "LookupID", -1);
+		return classId;
 	}
 	
 	// --------------------------------------------------------------------------

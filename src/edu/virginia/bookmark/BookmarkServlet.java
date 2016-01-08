@@ -195,8 +195,15 @@ public class BookmarkServlet extends HttpServlet {
     		return GameManager.submitChain(submitChainId, chain);
     	
     	case(GET_STUDENT_DECK):
-    		int getDeckStudentId = Integer.parseInt("id");
-    		int getDeckClassId = Integer.parseInt("classId");
+    		int getDeckStudentId = Integer.parseInt(params.get("id")[0]);
+    		int getDeckClassId = Integer.parseInt(params.get("classId")[0]);
+    		if(getDeckClassId == -1) {
+    			System.out.println("USING DEFAULT CLASS FOR STUDENT IN GET STUDENT DECK.");
+    			getDeckClassId = DatabaseManager.getClassContainingStudent(getDeckStudentId);
+    			if(getDeckClassId == -1) {
+    				return new ResponseInfo(400, "Could not find class containing student with id #" + getDeckStudentId);
+    			}
+    		}
     		String studentDeckXML = getStudentDeckXML(getDeckStudentId, getDeckClassId);
     		return new ResponseInfo(200, studentDeckXML);
 
