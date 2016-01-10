@@ -249,7 +249,7 @@ public class DatabaseManager {
 			
 			if(results.next()) {
 				// Found Match
-				CardType type = CardType.valueOf(results.getString("CardType").trim());
+				String type = results.getString("CardType").trim();
 				String bodyText = results.getString("CardBody").trim();
 				int pageStart = results.getInt("PageStart");
 				int pageEnd = results.getInt("PageEnd");
@@ -488,6 +488,46 @@ public class DatabaseManager {
 		return getIntFromDB("Login", query, "PersonID", -1);
 	}
 
+
+	// --------------------------------------------------------------------------
+	// ----------------------- DATA MODIFICATION METHODS ------------------------
+	// --------------------------------------------------------------------------
+	
+	public static void AddCardForStudent(int studentID, int classID, String cardType, String cardBody, int pageStart, int pageEnd) {
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+			
+			DatabaseManager.addCard(statement, studentID, classID, cardType, cardBody, pageStart, pageEnd);
+			
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Add Card for Student: " + ex.getMessage());
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Add Card for Student Finally: " + ex.getMessage());
+			}
+		}
+	}
+	
 	// --------------------------------------------------------------------------
 	// ---------------------------- TESTING METHODS -----------------------------
 	// --------------------------------------------------------------------------

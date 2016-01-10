@@ -33,6 +33,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String SUBMIT_CHAIN = "submit-chain";
     private final String GET_STUDENT_DECK = "get-student-deck";
     private final String GET_TEAM_DECK = "get-team-deck";
+    private final String STUDENT_ADD_CARD = "student-add-card";
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -208,11 +209,38 @@ public class BookmarkServlet extends HttpServlet {
     		return new ResponseInfo(200, studentDeckXML);
 
         case(GET_TEAM_DECK):
-            int getTeamDeckId = Integer.parseInt("id");
-            int getTDeckClassId = Integer.parseInt("classId");
+            int getTeamDeckId = Integer.parseInt(params.get("id")[0]);
+            int getTDeckClassId = Integer.parseInt(params.get("classId")[0]);
             String teamDeckXML = getTeamDeckXML(getTeamDeckId, getTDeckClassId);
             return new ResponseInfo(200, teamDeckXML);
 
+        case(STUDENT_ADD_CARD):
+        	int addCard_StudentId = Integer.parseInt(params.get("id")[0]);
+        	int addCard_ClassId = Integer.parseInt(params.get("classId")[0]);
+        	String addCard_Type = params.get("cardType")[0];
+			String addCard__Body = params.get("bodyText")[0];
+			int addCard_PageStart = Integer.parseInt(params.get("pageStart")[0]);
+			int addCard_PageEnd = Integer.parseInt(params.get("pageEnd")[0]);
+        	        	
+        	if(addCard_ClassId == -1) {
+        		System.out.println("USING DEFAULT CLASS FOR ADD STUDENT CARD.");
+        		addCard_ClassId = DatabaseManager.getClassContainingStudent(addCard_StudentId);
+    			if(addCard_ClassId == -1) {
+    				return new ResponseInfo(400, "Could not find class containing student with id #" + addCard_StudentId);
+    			}
+        	}
+        	
+        	DatabaseManager.AddCardForStudent(
+        			addCard_StudentId,
+        			addCard_ClassId,
+        			addCard_Type,
+        			addCard__Body,
+        			addCard_PageStart,
+        			addCard_PageEnd
+        			);
+        	
+            return new ResponseInfo(200, "Card Successfully Added");
+            
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		
@@ -240,7 +268,7 @@ public class BookmarkServlet extends HttpServlet {
         //get students, take each student's Deck XML, cocatenate on string
 
        
-       ArrayList<Integer> teamIds = DatabaseManager.loadTeamStudentIds(teamId, classId);
+       ArrayList<Integer> teamIds = DatabaseManager.loadTeamStudentIds(teamId/*, classId*/);
 
         String xml = "<team_deck>";
 
