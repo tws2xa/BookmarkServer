@@ -221,6 +221,7 @@ public class BookmarkServlet extends HttpServlet {
 			String addCard__Body = params.get("bodyText")[0];
 			int addCard_PageStart = Integer.parseInt(params.get("pageStart")[0]);
 			int addCard_PageEnd = Integer.parseInt(params.get("pageEnd")[0]);
+			int addCard_EditId = Integer.parseInt(params.get("editId")[0]);
         	        	
         	if(addCard_ClassId == -1) {
         		System.out.println("USING DEFAULT CLASS FOR ADD STUDENT CARD.");
@@ -230,14 +231,27 @@ public class BookmarkServlet extends HttpServlet {
     			}
         	}
         	
-        	DatabaseManager.AddCardForStudent(
-        			addCard_StudentId,
-        			addCard_ClassId,
-        			addCard_Type,
-        			addCard__Body,
-        			addCard_PageStart,
-        			addCard_PageEnd
-        			);
+        	if(addCard_EditId == -1) {
+	        	DatabaseManager.addCardForStudent(
+	        			addCard_StudentId,
+	        			addCard_ClassId,
+	        			addCard_Type,
+	        			addCard__Body,
+	        			addCard_PageStart,
+	        			addCard_PageEnd
+	        			);
+        	}
+        	else {
+        		DatabaseManager.UpdateCardForStudent(
+        				addCard_EditId,
+        				addCard_StudentId,
+	        			addCard_ClassId,
+	        			addCard_Type,
+	        			addCard__Body,
+	        			addCard_PageStart,
+	        			addCard_PageEnd
+	        			);
+        	}
         	
             return new ResponseInfo(200, "Card Successfully Added");
             

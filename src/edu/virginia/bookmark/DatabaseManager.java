@@ -2,6 +2,7 @@ package edu.virginia.bookmark;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -493,7 +494,57 @@ public class DatabaseManager {
 	// ----------------------- DATA MODIFICATION METHODS ------------------------
 	// --------------------------------------------------------------------------
 	
-	public static void AddCardForStudent(int studentID, int classID, String cardType, String cardBody, int pageStart, int pageEnd) {
+	public static void UpdateCardForStudent(int cardID, int studentID, int classID, String cardType, String cardBody, int pageStart, int pageEnd) {
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		PreparedStatement prepStmt = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			
+			String prepQuery = "UPDATE Cards SET "
+					+ "CardType=?, "
+					+ "CardBody=?, "
+					+ "PageStart=?, "
+					+ "PageEnd=? "
+					+ "WHERE (CardID=? AND PersonID=?);";
+			
+			prepStmt = connection.prepareStatement(prepQuery);
+			
+			prepStmt.setString(1, cardType);
+			prepStmt.setString(2, cardBody);
+			prepStmt.setInt(3, pageStart);
+			prepStmt.setInt(4, pageEnd);
+			prepStmt.setInt(5,  cardID);
+			prepStmt.setInt(6, studentID);
+			
+			prepStmt.executeUpdate();
+			
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Add Card for Student: " + ex.getMessage());
+		} finally {
+			try {
+				if(prepStmt != null) {
+					prepStmt.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Add Card for Student Finally: " + ex.getMessage());
+			}
+		}
+	}
+	
+	public static void addCardForStudent(int studentID, int classID, String cardType, String cardBody, int pageStart, int pageEnd) {
 		MysqlDataSource datasource = null;
 		Connection connection = null;
 		Statement statement = null;
@@ -510,7 +561,7 @@ public class DatabaseManager {
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
 			
-			DatabaseManager.addCard(statement, studentID, classID, cardType, cardBody, pageStart, pageEnd);
+			DatabaseManager.addCard(connection, studentID, classID, cardType, cardBody, pageStart, pageEnd);
 			
 		} catch(SQLException ex) {
 			System.out.println("SQL Exception in Add Card for Student: " + ex.getMessage());
@@ -567,18 +618,18 @@ public class DatabaseManager {
 			DatabaseManager.addStudent(statement, "Doc7", "Doc7", "Sylvester McCoy", 1);
 			
 			// Cards
-			DatabaseManager.addCard(statement, 2, 1, CardType.Argument.name(),  "Here is the point I wish to argue! Hooray!", -1, -1);
-			DatabaseManager.addCard(statement, 2, 1, CardType.Tone.name(), "I have uncovered the mysteries of Tone! Hooray!", -1, -1);
-			DatabaseManager.addCard(statement, 3, 1, CardType.Imagery.name() , "Here is some imagery! Huzzah!", 2, -1);
-			DatabaseManager.addCard(statement, 3, 1, CardType.Diction.name() , "Words are my speciality! Huzzah!", 7, 8);
-			DatabaseManager.addCard(statement, 4, 1, CardType.Diction.name() , "Here are some fancy words! Yippie!", 6, 7);
-			DatabaseManager.addCard(statement, 4, 1, CardType.Theme.name() , "I theme, you theme, we all theme for Ice Cream! Yippie!", -1, -1);
-			DatabaseManager.addCard(statement, 5, 1, CardType.Tone.name() , "This is how the author felt when writing! Woohoo!", -1, -1);
-			DatabaseManager.addCard(statement, 5, 1, CardType.Other.name() , "I found some alliteration! Woohoo!", 9, -1);
-			DatabaseManager.addCard(statement, 6, 1, CardType.Theme.name() , "Here is a main, underlying idea of the text! Yowzah!", -1, -1);
-			DatabaseManager.addCard(statement, 6, 1, CardType.Argument.name() , "This is a thing I believe! Yowzah!", -1, -1);
-			DatabaseManager.addCard(statement, 7, 1, CardType.Other.name() , "Here is an incredibly original thought! I love this game!!", -1, -1);
-			DatabaseManager.addCard(statement, 7, 1, CardType.Imagery.name() , "Beautiful words paint a beautiful picture! I love this game!", 8, 10);
+			DatabaseManager.addCard(connection, 2, 1, CardType.Argument.name(),  "Here is the point I wish to argue! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 2, 1, CardType.Tone.name(), "I have uncovered the mysteries of Tone! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 3, 1, CardType.Imagery.name() , "Here is some imagery! Huzzah!", 2, -1);
+			DatabaseManager.addCard(connection, 3, 1, CardType.Diction.name() , "Words are my speciality! Huzzah!", 7, 8);
+			DatabaseManager.addCard(connection, 4, 1, CardType.Diction.name() , "Here are some fancy words! Yippie!", 6, 7);
+			DatabaseManager.addCard(connection, 4, 1, CardType.Theme.name() , "I theme, you theme, we all theme for Ice Cream! Yippie!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, CardType.Tone.name() , "This is how the author felt when writing! Woohoo!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, CardType.Other.name() , "I found some alliteration! Woohoo!", 9, -1);
+			DatabaseManager.addCard(connection, 6, 1, CardType.Theme.name() , "Here is a main, underlying idea of the text! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 6, 1, CardType.Argument.name() , "This is a thing I believe! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, CardType.Other.name() , "Here is an incredibly original thought! I love this game!!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, CardType.Imagery.name() , "Beautiful words paint a beautiful picture! I love this game!", 8, 10);
 			
 			// Test Teams
 			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
@@ -744,7 +795,7 @@ public class DatabaseManager {
 	}
 	
 	private static void addCard(
-			Statement statement,
+			Connection connection,
 			int studentID,
 			int classID,
 			String cardType,
@@ -752,17 +803,34 @@ public class DatabaseManager {
 			int pageStart,
 			int pageEnd) throws SQLException {
 		
-		// Cards: [int CardID unique][int PersonID][int classID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
-		String query = "INSERT INTO Cards (PersonID, ClassID, CardType, CardBody, PageStart, PageEnd) VALUES ("
-				+ studentID + ", "
-				+ classID + ", "
-				+ "'" + cardType + "', "
-				+ "'" + cardBody + "', "
-				+ pageStart + ", "
-				+ pageEnd + ");";
-		statement.executeUpdate(query);
+		PreparedStatement prepStmt = connection.prepareStatement("INSERT INTO Cards (PersonID, ClassID, CardType, CardBody, PageStart, PageEnd) VALUES (?, ?, ?, ?, ?, ?);");
+		
+		prepStmt.setInt(1,  studentID);
+		prepStmt.setInt(2, classID);
+		prepStmt.setString(3, cardType);
+		prepStmt.setString(4, cardBody);
+		prepStmt.setInt(5, pageStart);
+		prepStmt.setInt(6, pageEnd);
+
+		prepStmt.executeUpdate();
 		
 	}
+	
+	private static String sanitizeString(String str) {
+		 String data = null;
+		 if (str != null && str.length() > 0) {
+			  str = str.replace("\\", "\\\\");
+			  str = str.replace("'", "\\'");
+			  str = str.replace("\0", "\\0");
+			  str = str.replace("\n", "\\n");
+			  str = str.replace("\r", "\\r");
+			  str = str.replace("\"", "\\\"");
+			  str = str.replace("\\x1a", "\\Z");
+			  data = str;
+		 }
+		 return data;
+	}
+	
 	
 	/*******
 	 * METHOD WRAPPER
