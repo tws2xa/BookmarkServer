@@ -18,4 +18,8 @@ public class Board {
 		// Fills all the slots in the board with cards
 		// that are randomly sampled from the class decks
 	}
+
+	public Card returnCardAtPos(Point pos) {
+		return board[pos.x][pos.y];
+	}
 }
