@@ -347,6 +347,18 @@ public class DatabaseManager {
 		int classId = DatabaseManager.getIntFromDB("GET CLASS CONTAINING STUDENT", query, "LookupID", -1);
 		return classId;
 	}
+
+	public static int getTeamContainingStudent(int id) {
+
+	String query = "SELECT Teams.TeamID AS LookupID "
+			+ "FROM Teams, TeamStudents "
+			+ "WHERE (Teams.TeamID=TeamStudents.TeamID AND TeamStudents.StudentID=" + id + ");";
+	int teamId = DatabaseManager.getIntFromDB("GET TEAM CONTAINING STUDENT", query, "LookupID", -1);
+
+	return teamId;
+
+	}
+	
 	
 	// --------------------------------------------------------------------------
 	// ---------------------------- GET TEACHER INFO ----------------------------
