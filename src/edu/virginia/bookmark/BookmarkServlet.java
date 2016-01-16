@@ -209,9 +209,16 @@ public class BookmarkServlet extends HttpServlet {
     		return new ResponseInfo(200, studentDeckXML);
 
         case(GET_TEAM_DECK):
-            int getTeamDeckId = Integer.parseInt(params.get("id")[0]);
-            int getTDeckClassId = Integer.parseInt(params.get("classId")[0]);
-            String teamDeckXML = getTeamDeckXML(getTeamDeckId, getTDeckClassId);
+            int getTeamDeckStudentId = Integer.parseInt(params.get("id")[0]);
+        	int getTDeckClassId = GameManager.getActiveClassId(getTeamDeckStudentId);
+            if(getTDeckClassId == -1) {
+				return new ResponseInfo(400, "Could not find class containing student with id #" + getTeamDeckStudentId);
+            }
+            int getTeamDeckTeamId = GameManager.getActiveTeamWithStudentId(getTeamDeckStudentId);
+            if(getTeamDeckTeamId == -1) {
+            	return new ResponseInfo(400, "Could not find team containing student with id #" + getTeamDeckStudentId);
+            }
+            String teamDeckXML = getTeamDeckXML(getTeamDeckTeamId, getTDeckClassId);
             return new ResponseInfo(200, teamDeckXML);
 
         case(STUDENT_ADD_CARD):
@@ -279,20 +286,18 @@ public class BookmarkServlet extends HttpServlet {
     /* Generates xml for a team's Deck.
     */
     private String getTeamDeckXML(int teamId, int classId) {
-        //get students, take each student's Deck XML, cocatenate on string
-
-       
-       ArrayList<Integer> teamIds = DatabaseManager.loadTeamStudentIds(teamId/*, classId*/);
-
-        String xml = "<team_deck>";
-
-         for(int studentId : teamIds) {
-             String deck = getStudentDeckXML(studentId, classId);
-            xml += deck;
-            }
-
-         xml += "</team_deck>";
-         return xml;
+    	//get students, take each student's Deck XML, cocatenate on string
+    	ArrayList<Integer> teamIds = DatabaseManager.loadTeamStudentIds(teamId/*, classId*/);
+    	
+		String xml = "<team_deck>";
+		for(int studentId : teamIds) {
+			String deck = getStudentDeckXML(studentId, classId);
+			xml += deck;
+		}
+		System.out.println();
+		
+		xml += "</team_deck>";
+		return xml;
     }
         
 	

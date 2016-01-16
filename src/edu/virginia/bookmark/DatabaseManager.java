@@ -451,8 +451,8 @@ public class DatabaseManager {
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
 				
-			
-			ResultSet results = statement.executeQuery("SELECT StudentID FROM TeamStudents WHERE TeamID = " + teamId + ";");
+			String query = ("SELECT StudentID FROM TeamStudents WHERE TeamID = " + teamId + ";");
+			ResultSet results = statement.executeQuery(query);
 			while(results.next()) {
 				studentIDs.add(results.getInt("StudentID"));
 			}

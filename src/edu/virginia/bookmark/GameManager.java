@@ -112,7 +112,19 @@ public class GameManager {
 	 * containing the given person id.
 	 */
 	public static int getActiveClassId(int id) {
-		return getSessionWithId(id).schoolClass.id;
+		Session sessionWithId = getSessionWithId(id);
+		if(sessionWithId == null) {
+			return -1;
+		}
+		return sessionWithId.schoolClass.id;
+	}
+	
+	public static int getActiveTeamWithStudentId(int id) {
+		Session sessionWithId = getSessionWithId(id);
+		if(sessionWithId == null) {
+			return -1;
+		}
+		return sessionWithId.schoolClass.findTeamIdWithStudentId(id);
 	}
 	
 	/**

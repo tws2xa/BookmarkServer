@@ -39,4 +39,17 @@ public class SchoolClass {
 		
 		return classDeck;
 	}
+	
+	/**
+	 * Finds the id of the team that contains the student with the given id.
+	 * Returns -1 if none.
+	 */
+	public int findTeamIdWithStudentId(int id) {
+		for(Team team : teams) {
+			if(team.containsStudentWithId(id)) {
+				return team.id;
+			}
+		}
+		return -1;
+	}
 }
