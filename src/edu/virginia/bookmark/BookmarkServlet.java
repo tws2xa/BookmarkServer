@@ -250,7 +250,7 @@ public class BookmarkServlet extends HttpServlet {
 	        			);
         	}
         	else {
-        		DatabaseManager.UpdateCardForStudent(
+        		DatabaseManager.updateCardForStudent(
         				addCard_EditId,
         				addCard_StudentId,
 	        			addCard_ClassId,

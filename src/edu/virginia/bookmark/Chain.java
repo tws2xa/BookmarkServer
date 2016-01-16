@@ -27,6 +27,18 @@ public class Chain {
 		this.cards = cards;
 		this.links = links;
 	}
+
+	/**
+	 * Gets the chain's argument card
+	 */
+	public Card getArgumentCard() {
+		for(Card card : cards.keySet()) {
+			if(card.getType().equals(CardType.Argument)) {
+				return card;
+			}
+		}
+		return null;
+	}
 	
 	@Override
 	public String toString() {

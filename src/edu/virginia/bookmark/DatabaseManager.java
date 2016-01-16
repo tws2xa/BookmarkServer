@@ -1,5 +1,6 @@
 package edu.virginia.bookmark;
 
+import java.awt.Point;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -47,9 +48,9 @@ import java.util.HashMap;
  * 		[int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]
  * 
  * Table: ChainCards
- *		[int ChainID][int CardID][TimeStamp TIMESTAMP]
+ *		[int ChainID][int CardID][float CardX][float CardY][TimeStamp TIMESTAMP]
  * 
- * Table: CardLinks
+ * Table: ChainLinks
  * 		[int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
  *
  ******/
@@ -88,6 +89,7 @@ public class DatabaseManager {
 			statement.executeUpdate("DROP TABLE IF EXISTS Cards");
 			statement.executeUpdate("DROP TABLE IF EXISTS Chains");
 			statement.executeUpdate("DROP TABLE IF EXISTS ChainCards");
+			statement.executeUpdate("DROP TABLE IF EXISTS ChainLinks");
 			statement.executeUpdate("DROP TABLE IF EXISTS CardLinks");
 			
 			// People
@@ -142,12 +144,12 @@ public class DatabaseManager {
 			statement.executeUpdate("CREATE TABLE Chains (ChainID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ArgumentCardID INT NOT NULL, TimeStamp TIMESTAMP);");
 			 
 			// ChainCards
-			// [int ChainID][int CardID][TimeStamp TIMESTAMP]
-			statement.executeUpdate("CREATE TABLE ChainCards (ChainID INT NOT NULL, CardID INT NOT NULL, TimeStamp TIMESTAMP);");
+			// [int ChainID][int CardID][float CardX][float CardY][TimeStamp TIMESTAMP]
+			statement.executeUpdate("CREATE TABLE ChainCards (ChainID INT NOT NULL, CardID INT NOT NULL, CardX FLOAT NOT NULL, CardY FLOAT NOT NULL, TimeStamp TIMESTAMP);");
 			 
-			// CardLinks
+			// ChainLinks
 			// [int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
-			statement.executeUpdate("CREATE TABLE CardLinks (ChainID INT NOT NULL, Card1ID INT NOT NULL, Card2ID INT NOT NULL, TimeStamp TIMESTAMP);");
+			statement.executeUpdate("CREATE TABLE ChainLinks (ChainID INT NOT NULL, Card1ID INT NOT NULL, Card2ID INT NOT NULL, TimeStamp TIMESTAMP);");
 			
 			// Create the test class and data
 			DatabaseManager.createTestContent();
@@ -512,7 +514,104 @@ public class DatabaseManager {
 	// ----------------------- DATA MODIFICATION METHODS ------------------------
 	// --------------------------------------------------------------------------
 	
-	public static void UpdateCardForStudent(int cardID, int studentID, int classID, String cardType, String cardBody, int pageStart, int pageEnd) {
+	/**
+	 * Stores the given chain in the database.
+	 * If a chain already exists with argument card id, will replace.
+	 */
+	public static void addChainToDatabase(Chain chain) {
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+
+			// Table: Chains [int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]		 			
+			// Table: ChainCards [int ChainID][int CardID][float CardX][float CardY][TimeStamp TIMESTAMP]
+			// Table: ChainLinks [int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
+			
+
+			// ------------------------------------------ //
+			// ------- Insert into Chains Table --------- //
+			// ------------------------------------------ //
+			// Table: Chains [int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]		 	
+			int argumentCardID = chain.getArgumentCard().id;
+			String getChainIDQuery = ("SELECT ChainID FROM Chains WHERE ArgumentCardID=" + chain.getArgumentCard().id + ";");
+			int chainId = DatabaseManager.getIntFromDB(("Searching For Chain With Argument ID: " + argumentCardID), getChainIDQuery, "ChainID", -1);
+			
+			if(chainId == -1) {
+				// No Match Found: Create New
+				String intoChainsQuery = "INSERT INTO Chains (ArgumentCardID) VALUES (" + argumentCardID + ");";
+				statement.executeUpdate(intoChainsQuery);
+				
+				// Get the added chain's id.
+				chainId = DatabaseManager.getIntFromDB(("Searching For Chain With Argument ID: " + argumentCardID), getChainIDQuery, "ChainID", -1);
+			} else {
+				// Match Found: Update
+				// (This shouldn't actually be necessary, but it updates the time stamp as well, which could be helpful.
+				String updateChainsQuery = ("UPDATE Chains SET ArgumentCardID=" + argumentCardID + " WHERE ChainId=" + chainId + ";");
+				statement.executeUpdate(updateChainsQuery);	
+			}
+
+			// ---------------------------------------------- //
+			// ----- Insert all cards into ChainCards ------- //
+			// ---------------------------------------------- //
+			// Table: ChainCards [int ChainID][int CardID][float CardX][float CardY][TimeStamp TIMESTAMP]
+			// Clear Any Old Data
+			String chainCardsRemove = "DELETE FROM ChainCards WHERE ChainID=" + chainId + ";";
+			statement.executeUpdate(chainCardsRemove);
+			
+			// Building Query: INSERT INTO ChainCards (ChainID, CardID, CardX, CardY) VALUES (w, x, y, z), (d, c, b, a), ...
+			String chainCardInsertQuery = "INSERT INTO ChainCards (ChainID, CardID, CardX, CardY) VALUES";
+			for(Card card : chain.cards.keySet()) {
+				Point pos = chain.cards.get(card);
+				chainCardInsertQuery += " (" + chainId + ", " + card.id + ", " + pos.getX() + ", " + pos.getY() + "),";
+			}
+			chainCardInsertQuery = chainCardInsertQuery.substring(0, chainCardInsertQuery.length() - 1) + ";";
+			statement.executeUpdate(chainCardInsertQuery);
+
+			// ---------------------------------------------- //
+			// ------- Insert Links into ChainLinks --------- //
+			// ---------------------------------------------- //
+			// Table: ChainLinks [int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
+			// Clear Any Old Data
+			String chainLinksRemove = "DELETE FROM ChainLinks WHERE ChainID=" + chainId + ";";
+			statement.executeUpdate(chainLinksRemove);
+			
+			// Building Query: INSERT INTO ChainLinks (ChainID, Card1ID, Card2ID) VALUES (x, y, z), (c, b, a), ...
+			String chainLinksInsertQuery = "INSERT INTO ChainLinks (ChainID, Card1ID, Card2ID) VALUES";
+			for(int[] link : chain.links) {
+				chainLinksInsertQuery += " (" + chainId + ", " + link[0] + ", " + link[1] + "),";
+			}
+			chainLinksInsertQuery = chainLinksInsertQuery.substring(0, chainLinksInsertQuery.length() - 1) + ";";
+			statement.executeUpdate(chainLinksInsertQuery);
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Add Card for Student: " + ex.getMessage());
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Add Card for Student Finally: " + ex.getMessage());
+			}
+		}
+	}
+	
+	public static void updateCardForStudent(int cardID, int studentID, int classID, String cardType, String cardBody, int pageStart, int pageEnd) {
 		MysqlDataSource datasource = null;
 		Connection connection = null;
 		PreparedStatement prepStmt = null;

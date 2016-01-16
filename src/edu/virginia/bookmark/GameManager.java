@@ -66,6 +66,11 @@ public class GameManager {
 	public static ResponseInfo submitChain(int id, Chain chain) {
 		System.out.println("Chain Submission: ");
 		System.out.println(chain);
+		
+		// This should actually go to another mode.
+		System.out.println("CHAIN SUBMISSION SHORT CIRCUITING TO SAVE. SKIPPING OPPORTUNITY FOR CHALLENGE. SHOULD CHANG IN GameManager.submitChain()!!");
+		DatabaseManager.addChainToDatabase(chain);
+		
 		return new ResponseInfo(200, "All Good");
 	}
 	
