@@ -5,13 +5,13 @@ import java.util.ArrayList;
 public class Student extends Person {
 	private ArrayList<Card> deck;
 	
-	public Student(int id) {
+	public Student(int id, int classId) {
 		super(id, DatabaseManager.getPersonName(id));
-		this.deck = loadStudentDeckFromDB();
+		this.deck = loadStudentDeckFromDB(classId);
 	}
 	
-	private ArrayList<Card> loadStudentDeckFromDB() {
-		ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(id, GameManager.getActiveClassId(id));
+	private ArrayList<Card> loadStudentDeckFromDB(int classId) {
+		ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(id, classId);
 		ArrayList<Card> retDeck = new ArrayList<Card>();
 		for(int cardId : cardIds) {
 			retDeck.add(new Card(cardId));

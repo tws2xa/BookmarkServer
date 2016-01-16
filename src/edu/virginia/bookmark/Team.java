@@ -13,14 +13,14 @@ public class Team {
 	public Team(int id) {
 		this.id = id;
 		this.name = DatabaseManager.getTeamName(id);
-		this.students = loadStudentsFromDB();
+		this.students = loadStudentsFromDB(DatabaseManager.getTeamClassID(id));
 	}
 	
-	private ArrayList<Student> loadStudentsFromDB() {
+	private ArrayList<Student> loadStudentsFromDB(int classId) {
 		ArrayList<Integer> studentIds = DatabaseManager.loadTeamStudentIds(id);
 		ArrayList<Student> retStudents = new ArrayList<Student>();
 		for(int studentId : studentIds) {
-			retStudents.add(new Student(studentId));
+			retStudents.add(new Student(studentId, classId));
 		}
 		return retStudents;
 	}
@@ -30,11 +30,9 @@ public class Team {
 	 */
 	public ArrayList<Card> getTeamDeck() {
 		ArrayList<Card> teamDeck = new ArrayList<Card>();
-		
 		for(Student student : students) {
 			teamDeck.addAll(student.getDeck());
 		}
-		
 		return teamDeck;
 	}
 	

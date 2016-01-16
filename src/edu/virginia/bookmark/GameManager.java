@@ -68,6 +68,28 @@ public class GameManager {
 		System.out.println(chain);
 		return new ResponseInfo(200, "All Good");
 	}
+	
+	/**
+	 * Finds the class containing the given student.
+	 * Collects all argument cards from that class.
+	 * Provides an xml representation of the deck.
+	 */
+	public static ResponseInfo getClassArgumentCardXML(int studentId) {
+		Session sessionWithId = getSessionWithId(studentId);
+		if(sessionWithId == null) {
+			return new ResponseInfo(400, "Cannot find session containing student with id " + studentId);
+		}
+		
+		ArrayList<Card> argumentCards = sessionWithId.schoolClass.getClassArgumentCards();
+		
+		String xml = "<deck>";
+    	for(Card card : argumentCards) {
+			xml += card.generateCardXML();
+		}
+    	xml += "</deck>";
+    	
+    	return new ResponseInfo(200, xml);
+	}
 
 	/**
 	 * Checks if the user with the given id needs to update the board view.
@@ -119,6 +141,9 @@ public class GameManager {
 		return sessionWithId.schoolClass.id;
 	}
 	
+	/**
+	 * Provides the id of the team containing the student with the given id.
+	 */
 	public static int getActiveTeamWithStudentId(int id) {
 		Session sessionWithId = getSessionWithId(id);
 		if(sessionWithId == null) {

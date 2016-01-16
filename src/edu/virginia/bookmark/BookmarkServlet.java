@@ -34,6 +34,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String GET_STUDENT_DECK = "get-student-deck";
     private final String GET_TEAM_DECK = "get-team-deck";
     private final String STUDENT_ADD_CARD = "student-add-card";
+    private final String GET_CLASS_ARGUMENT_CARD_DECK = "get-class-argument-card-deck";
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -261,6 +262,10 @@ public class BookmarkServlet extends HttpServlet {
         	}
         	
             return new ResponseInfo(200, "Card Successfully Added");
+        
+        case(GET_CLASS_ARGUMENT_CARD_DECK):
+        	int getClassArgDeck_studentId = Integer.parseInt(params.get("id")[0]);
+        	return GameManager.getClassArgumentCardXML(getClassArgDeck_studentId);
             
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
@@ -294,7 +299,6 @@ public class BookmarkServlet extends HttpServlet {
 			String deck = getStudentDeckXML(studentId, classId);
 			xml += deck;
 		}
-		System.out.println();
 		
 		xml += "</team_deck>";
 		return xml;

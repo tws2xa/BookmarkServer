@@ -316,8 +316,9 @@ public class DatabaseManager {
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
 				
-			
-			ResultSet results = statement.executeQuery("SELECT CardID FROM Cards WHERE PersonID=" + studentId + " AND ClassID=" + classId + ";");
+			String query = ("SELECT CardID FROM Cards WHERE PersonID=" + studentId + " AND ClassID=" + classId + ";");
+			System.out.println("Running Query in Get Student Deck: " + query);
+			ResultSet results = statement.executeQuery(query);
 			while(results.next()) {
 				cardIds.add(results.getInt("CardID"));
 			}
@@ -432,6 +433,11 @@ public class DatabaseManager {
 	// --------------------------------------------------------------------------
 	// ----------------------------- GET TEAM INFO ------------------------------
 	// --------------------------------------------------------------------------
+	
+	public static int getTeamClassID(int teamId) {
+		String query = ("SELECT ClassID FROM Teams WHERE TeamID=" + teamId + ";");
+		return DatabaseManager.getIntFromDB("Get Team ClassID", query, "ClassID", -1);
+	}
 	
 	/**
 	 * Load in the team's name from the database
