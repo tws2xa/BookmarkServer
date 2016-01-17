@@ -35,6 +35,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String GET_TEAM_DECK = "get-team-deck";
     private final String STUDENT_ADD_CARD = "student-add-card";
     private final String GET_CLASS_ARGUMENT_CARD_DECK = "get-class-argument-card-deck";
+    private final String GET_CHAIN_FOR_ARGUMENT = "get-chain-for-argument";
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -267,6 +268,20 @@ public class BookmarkServlet extends HttpServlet {
         	int getClassArgDeck_studentId = Integer.parseInt(params.get("id")[0]);
         	return GameManager.getClassArgumentCardXML(getClassArgDeck_studentId);
             
+        case(GET_CHAIN_FOR_ARGUMENT):
+        	int getChainForArg_ArgCardID = Integer.parseInt(params.get("argument_card_id")[0]);
+        	Chain getChainForArg_Chain = DatabaseManager.getChainForArgumentCard(getChainForArg_ArgCardID);
+        	
+        	String retStr = "";
+        	if(getChainForArg_Chain == null) {
+        		retStr = "null";
+        	} else {
+        		retStr = getChainForArg_Chain.generateChainXML();
+        	}
+        	
+        	System.out.println("\nReturning: " + retStr + "\n");
+        	return new ResponseInfo(200, retStr);
+        	
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		

@@ -48,7 +48,7 @@ import java.util.HashMap;
  * 		[int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]
  * 
  * Table: ChainCards
- *		[int ChainID][int CardID][float CardX][float CardY][TimeStamp TIMESTAMP]
+ *		[int ChainID][int CardID][int CardX][int CardY][TimeStamp TIMESTAMP]
  * 
  * Table: ChainLinks
  * 		[int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
@@ -144,8 +144,8 @@ public class DatabaseManager {
 			statement.executeUpdate("CREATE TABLE Chains (ChainID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ArgumentCardID INT NOT NULL, TimeStamp TIMESTAMP);");
 			 
 			// ChainCards
-			// [int ChainID][int CardID][float CardX][float CardY][TimeStamp TIMESTAMP]
-			statement.executeUpdate("CREATE TABLE ChainCards (ChainID INT NOT NULL, CardID INT NOT NULL, CardX FLOAT NOT NULL, CardY FLOAT NOT NULL, TimeStamp TIMESTAMP);");
+			// [int ChainID][int CardID][int CardX][int CardY][TimeStamp TIMESTAMP]
+			statement.executeUpdate("CREATE TABLE ChainCards (ChainID INT NOT NULL, CardID INT NOT NULL, CardX INT NOT NULL, CardY INT NOT NULL, TimeStamp TIMESTAMP);");
 			 
 			// ChainLinks
 			// [int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
@@ -224,6 +224,93 @@ public class DatabaseManager {
 	// --------------------------------------------------------------------------
 	// ----------------------------- GET CARD INFO ------------------------------
 	// --------------------------------------------------------------------------
+	
+	
+	public static Chain getChainForArgumentCard(int argCardId) {
+		boolean found = false;
+		HashMap<Card, Point> cards = new HashMap<Card, Point>();
+		ArrayList<int[]> links = new ArrayList<int[]>();
+		
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+			
+			int chainId = getChainIdForArgumentCard(argCardId);
+			
+			if(chainId == -1) {
+				// No chain found for given argument card.
+				found = false;
+			} else {
+				// Chain found
+				found = true;
+				
+				// Load in cards and positions from ChainCards.
+				// Table: ChainCards [int ChainID][int CardID][int CardX][int CardY][TimeStamp TIMESTAMP]
+				String getCardsQuery = ("SELECT * FROM ChainCards WHERE ChainID=" + chainId + ";");
+				ResultSet results = statement.executeQuery(getCardsQuery);
+				while(results.next()) {
+					int cardID = results.getInt("CardID");
+					int cardX = results.getInt("CardX");
+					int cardY = results.getInt("CardY");
+					Point pos = new Point(cardX, cardY);
+					Card card = new Card(cardID);
+					cards.put(card, pos);
+				}
+				
+				// Load in links from ChainLinks.
+				// Table: ChainLinks [int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
+				String getLinksQuery = ("SELECT * FROM ChainLinks WHERE ChainID=" + chainId + ";");
+				results = statement.executeQuery(getLinksQuery);
+				while(results.next()) {
+					int[] link = new int[2];
+					link[0] = results.getInt("Card1ID");
+					link[1] = results.getInt("Card2ID");
+					links.add(link);
+				}
+			}
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Get Chain For Argument Card: " + ex.getMessage());
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Get Chain For Argument Card Finally: " + ex.getMessage());
+			}
+		}
+		
+		if(!found) {
+			return null;
+		}
+		Chain chain = new Chain(cards, links);
+		return chain;
+	}
+	
+	/**
+	 * Gets the id of a chain based around the argument card with the given id
+	 * Returns -1 if no chain exists for the given argument card id.
+	 */
+	public static int getChainIdForArgumentCard(int argCardId) {
+		String getChainIDQuery = ("SELECT ChainID FROM Chains WHERE ArgumentCardID=" + argCardId + ";");
+		int chainId = DatabaseManager.getIntFromDB(("Searching For Chain With Argument ID: " + argCardId), getChainIDQuery, "ChainID", -1);
+		return chainId;
+	}
 	
 	public static HashMap<String, Object> getCardProperties(int cardId) {
 		HashMap<String, Object> cardProperties = new HashMap<String, Object>();
@@ -319,7 +406,6 @@ public class DatabaseManager {
 			statement = connection.createStatement();
 				
 			String query = ("SELECT CardID FROM Cards WHERE PersonID=" + studentId + " AND ClassID=" + classId + ";");
-			System.out.println("Running Query in Get Student Deck: " + query);
 			ResultSet results = statement.executeQuery(query);
 			while(results.next()) {
 				cardIds.add(results.getInt("CardID"));
@@ -537,7 +623,7 @@ public class DatabaseManager {
 			statement = connection.createStatement();
 
 			// Table: Chains [int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]		 			
-			// Table: ChainCards [int ChainID][int CardID][float CardX][float CardY][TimeStamp TIMESTAMP]
+			// Table: ChainCards [int ChainID][int CardID][int CardX][int CardY][TimeStamp TIMESTAMP]
 			// Table: ChainLinks [int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
 			
 
@@ -546,8 +632,7 @@ public class DatabaseManager {
 			// ------------------------------------------ //
 			// Table: Chains [int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]		 	
 			int argumentCardID = chain.getArgumentCard().id;
-			String getChainIDQuery = ("SELECT ChainID FROM Chains WHERE ArgumentCardID=" + chain.getArgumentCard().id + ";");
-			int chainId = DatabaseManager.getIntFromDB(("Searching For Chain With Argument ID: " + argumentCardID), getChainIDQuery, "ChainID", -1);
+			int chainId = getChainIdForArgumentCard(argumentCardID);
 			
 			if(chainId == -1) {
 				// No Match Found: Create New
@@ -555,7 +640,7 @@ public class DatabaseManager {
 				statement.executeUpdate(intoChainsQuery);
 				
 				// Get the added chain's id.
-				chainId = DatabaseManager.getIntFromDB(("Searching For Chain With Argument ID: " + argumentCardID), getChainIDQuery, "ChainID", -1);
+				chainId = getChainIdForArgumentCard(argumentCardID);
 			} else {
 				// Match Found: Update
 				// (This shouldn't actually be necessary, but it updates the time stamp as well, which could be helpful.
@@ -566,7 +651,7 @@ public class DatabaseManager {
 			// ---------------------------------------------- //
 			// ----- Insert all cards into ChainCards ------- //
 			// ---------------------------------------------- //
-			// Table: ChainCards [int ChainID][int CardID][float CardX][float CardY][TimeStamp TIMESTAMP]
+			// Table: ChainCards [int ChainID][int CardID][int CardX][int CardY][TimeStamp TIMESTAMP]
 			// Clear Any Old Data
 			String chainCardsRemove = "DELETE FROM ChainCards WHERE ChainID=" + chainId + ";";
 			statement.executeUpdate(chainCardsRemove);

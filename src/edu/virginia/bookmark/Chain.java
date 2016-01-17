@@ -22,7 +22,7 @@ import edu.virginia.bookmark.Card.CardType;
 public class Chain {
 	HashMap<Card, Point> cards;
 	ArrayList<int[]> links;
-	
+		
 	public Chain(HashMap<Card, Point> cards, ArrayList<int[]> links) {
 		this.cards = cards;
 		this.links = links;
