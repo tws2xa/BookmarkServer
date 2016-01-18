@@ -56,6 +56,7 @@ public class GameManager {
 		else {
 			toJoin.addStudentWithId(id);
 			status = 200;
+			toJoin.clearUpToDateStatus();
 			message = toJoin.getGameBoardState(id);
 		}
 		
@@ -74,8 +75,9 @@ public class GameManager {
 			return new ResponseInfo(400, "Cannot find session containing id " + id);
 		}
 		
-		activeSession.sessionState = SessionState.Challenge;
+		activeSession.setSessionState(SessionState.Challenge);
 		activeSession.addChallenge(id, chain);
+		activeSession.clearUpToDateStatus();
 		
 		return new ResponseInfo(200, "Entering Challenge State");
 	}

@@ -15,7 +15,7 @@ public class Session {
 		Challenge // A team has submitted a chain and it's being challenged
 	}
 	
-	SessionState sessionState;
+	private SessionState sessionState;
 	ArrayList<Integer> upToDateIds;
 	
 	int activeTurnTeamId = -1;
@@ -29,7 +29,7 @@ public class Session {
 		this.teacherId = teacherId;
 		this.schoolClass = new SchoolClass(classId);
 		this.teams = this.schoolClass.getTeams();
-		sessionState = SessionState.Paused;
+		this.setSessionState(SessionState.Paused);
 	}
 	
 	/**
@@ -43,7 +43,7 @@ public class Session {
 		System.out.println("Clearing Up To Date Status.");
 		upToDateIds = new ArrayList<Integer>();
 		challengeChains = new HashMap<Integer, Chain>();
-		sessionState = SessionState.PlayerTurn;
+		this.setSessionState(SessionState.PlayerTurn);
 	}
 	
 	/**
@@ -63,6 +63,11 @@ public class Session {
 				}
 			}
 		}
+	}
+	
+	public void setSessionState(SessionState state) {
+		this.sessionState = state;
+		this.clearUpToDateStatus();
 	}
 	
 	/**
@@ -144,9 +149,9 @@ public class Session {
 	 * @return True if up to date. False otherwise.
 	 */
 	public boolean isUpToDate(int id) {
-		System.out.println("Checking if ID (" + id + ") is up to date");
+		System.out.print("Checking if ID " + id + " is up to date");
 		boolean upToDate = upToDateIds.contains(id);
-		System.out.println("Up To Date: " + upToDate);
+		System.out.println("   \tUp To Date: " + upToDate);
 		return upToDate;
 	}
 	
@@ -155,7 +160,7 @@ public class Session {
 	 */
 	public void markAsUpToDate(int id) {
 		if(!upToDateIds.contains(id)) {
-			System.out.println("Marking ID (" + id + ") as up to date.");
+			System.out.println("Marking ID " + id + " as up to date.");
 			upToDateIds.add(id);
 		}	
 	}
@@ -164,8 +169,10 @@ public class Session {
 	 * Marks all users as not up to date.
 	 */
 	public void clearUpToDateStatus() {
-		System.out.println("Clearing Up To Date Status.");
-		upToDateIds.clear();
+		if(upToDateIds != null) {
+			System.out.println("Clearing Up To Date Status.");
+			upToDateIds.clear();
+		}
 	}
 
 	/**
