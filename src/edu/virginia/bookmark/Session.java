@@ -198,16 +198,16 @@ public class Session {
 	 * Adds the student with the given ID to the session.
 	 */
 	public void addStudentWithId(int id) {
-		// if(this.activeTurnTeamId == -1) {
-			for(Team team : teams) {
-				if(team.containsStudentWithId(id)) {
-					System.out.println("Adding a Student From Team " + team.getName());
+		for(Team team : teams) {
+			if(team.containsStudentWithId(id)) {
+				System.out.println("Adding a Student From Team " + team.getName());
+				if(activeTurnTeamId < 0) {
 					activeTurnTeamId = team.id;
-					clearUpToDateStatus();
-					return;
 				}
+				clearUpToDateStatus();
+				return;
 			}
-		// }
+		}
 	}
 	
 	/**

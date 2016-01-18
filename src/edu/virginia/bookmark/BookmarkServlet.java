@@ -285,7 +285,7 @@ public class BookmarkServlet extends HttpServlet {
         	
         case(PASS_ON_CHALLENGE):
         	int passOnChallenge_StudentId = Integer.parseInt(params.get("id")[0]);
-        	GameManager.passOnChallenge(passOnChallenge_StudentId);
+        	return GameManager.passOnChallenge(passOnChallenge_StudentId);
         	
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
