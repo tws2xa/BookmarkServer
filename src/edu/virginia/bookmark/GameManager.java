@@ -75,11 +75,27 @@ public class GameManager {
 			return new ResponseInfo(400, "Cannot find session containing id " + id);
 		}
 		
-		activeSession.setSessionState(SessionState.Challenge);
-		activeSession.addChallenge(id, chain);
+		boolean firstChain = (activeSession.getSessionState() != SessionState.Challenge);
+		if(firstChain) activeSession.setSessionState(SessionState.Challenge);
+		activeSession.addChallenge(id, chain, firstChain);
 		activeSession.clearUpToDateStatus();
 		
 		return new ResponseInfo(200, "Entering Challenge State");
+	}
+	
+	/**
+	 * Handle a Team's Pass on Challenge
+	 */
+	public static ResponseInfo passOnChallenge(int id) {
+		Session activeSession = GameManager.getSessionWithId(id);
+		if(activeSession == null) {
+			return new ResponseInfo(400, "Cannot find session containing id " + id);
+		}
+		
+		int teamId = activeSession.schoolClass.findTeamIdWithStudentId(id);
+		activeSession.registerTeamChallengeResponse(teamId);
+		System.out.println("Team " + teamId + " has passed on the challenge.");
+		return new ResponseInfo(200, "Pass Registered.");
 	}
 	
 	/**

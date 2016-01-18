@@ -3,6 +3,8 @@ package edu.virginia.bookmark;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.virginia.bookmark.Session.SessionState;
+
 public class Session {
 	int teacherId;
 	Board board;
@@ -20,6 +22,7 @@ public class Session {
 	
 	int activeTurnTeamId = -1;
 	HashMap<Integer, Chain> challengeChains; //<Team ID, Chain>
+	HashMap<Integer, Boolean> challengeSubmissionStatus; // <Team ID, true/false (has responded/passed for challenge).>
 	
 	/**
 	 * @param teacherId The id of the teacher who owns this session
@@ -43,6 +46,7 @@ public class Session {
 		System.out.println("Clearing Up To Date Status.");
 		upToDateIds = new ArrayList<Integer>();
 		challengeChains = new HashMap<Integer, Chain>();
+		challengeSubmissionStatus = new HashMap<Integer, Boolean>();
 		this.setSessionState(SessionState.PlayerTurn);
 	}
 	
@@ -209,8 +213,27 @@ public class Session {
 	/**
 	 * Adds a chain to the list of challenges
 	 */
-	public void addChallenge(int studentId, Chain chain) {
+	public void addChallenge(int studentId, Chain chain, boolean first) {
+		if(first) {
+			// First challenge. Prep submission status.
+			for(Team team : schoolClass.getTeams()) {
+				challengeSubmissionStatus.put(team.id, false);
+			}
+		}
 		int teamId = schoolClass.findTeamIdWithStudentId(studentId);
 		this.challengeChains.put(teamId, chain);
+		registerTeamChallengeResponse(teamId);
+	}
+	
+	/**
+	 * Records that the given team has responded to the challenge.
+	 * Meaning they have either submitted another chain or they passed.
+	 */
+	public void registerTeamChallengeResponse(int teamId) {
+		challengeSubmissionStatus.put(teamId, true);
+	}
+
+	public SessionState getSessionState() {
+		return sessionState;
 	}
 }

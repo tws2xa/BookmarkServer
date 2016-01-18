@@ -36,7 +36,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String STUDENT_ADD_CARD = "student-add-card";
     private final String GET_CLASS_ARGUMENT_CARD_DECK = "get-class-argument-card-deck";
     private final String GET_CHAIN_FOR_ARGUMENT = "get-chain-for-argument";
-    private final String GET_PLAY_STATE_INFO = "get-play-state-info"; // Parameter: "id" (the student id).
+    private final String PASS_ON_CHALLENGE = "pass-on-challenge"; // Parameter: "id" (the student id).
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -282,6 +282,10 @@ public class BookmarkServlet extends HttpServlet {
         	
         	System.out.println("\nReturning: " + retStr + "\n");
         	return new ResponseInfo(200, retStr);
+        	
+        case(PASS_ON_CHALLENGE):
+        	int passOnChallenge_StudentId = Integer.parseInt(params.get("id")[0]);
+        	GameManager.passOnChallenge(passOnChallenge_StudentId);
         	
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
