@@ -198,4 +198,12 @@ public class Session {
 			}
 		// }
 	}
+	
+	/**
+	 * Adds a chain to the list of challenges
+	 */
+	public void addChallenge(int studentId, Chain chain) {
+		int teamId = schoolClass.findTeamIdWithStudentId(studentId);
+		this.challengeChains.put(teamId, chain);
+	}
 }

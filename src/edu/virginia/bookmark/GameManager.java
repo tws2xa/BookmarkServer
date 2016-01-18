@@ -2,6 +2,8 @@ package edu.virginia.bookmark;
 
 import java.util.ArrayList;
 
+import edu.virginia.bookmark.Session.SessionState;
+
 public class GameManager {
 
     private static ArrayList<Session> activeSessions = new ArrayList<Session>();
@@ -67,11 +69,15 @@ public class GameManager {
 		System.out.println("Chain Submission: ");
 		System.out.println(chain);
 		
-		// This should actually go to another mode.
-		System.out.println("CHAIN SUBMISSION SHORT CIRCUITING TO SAVE. SKIPPING OPPORTUNITY FOR CHALLENGE. SHOULD CHANG IN GameManager.submitChain()!!");
-		DatabaseManager.addChainToDatabase(chain);
+		Session activeSession = GameManager.getSessionWithId(id);
+		if(activeSession == null) {
+			return new ResponseInfo(400, "Cannot find session containing id " + id);
+		}
 		
-		return new ResponseInfo(200, "All Good");
+		activeSession.sessionState = SessionState.Challenge;
+		activeSession.addChallenge(id, chain);
+		
+		return new ResponseInfo(200, "Entering Challenge State");
 	}
 	
 	/**
