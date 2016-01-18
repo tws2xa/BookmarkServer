@@ -36,6 +36,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String STUDENT_ADD_CARD = "student-add-card";
     private final String GET_CLASS_ARGUMENT_CARD_DECK = "get-class-argument-card-deck";
     private final String GET_CHAIN_FOR_ARGUMENT = "get-chain-for-argument";
+    private final String GET_PLAY_STATE_INFO = "get-play-state-info"; // Parameter: "id" (the student id).
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -181,7 +182,7 @@ public class BookmarkServlet extends HttpServlet {
     		int givenGetBoardStateId = Integer.parseInt(params.get("id")[0]);
     		String boardStateXML = GameManager.getBoardStateXML(givenGetBoardStateId);
     		if(boardStateXML == null) {
-    			return new ResponseInfo(400, "No session with id: " + givenGetBoardStateId);
+    			return new ResponseInfo(400, "No session containing id: " + givenGetBoardStateId);
     		} else {
     			return new ResponseInfo(200, boardStateXML);
     		}

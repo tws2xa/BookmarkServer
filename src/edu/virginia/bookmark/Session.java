@@ -1,15 +1,25 @@
 package edu.virginia.bookmark;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Session {
 	int teacherId;
 	Board board;
 	SchoolClass schoolClass;
 	ArrayList<Team> teams;
-
+	
+	enum SessionState {
+		Paused, // Nothing happening yet
+		PlayerTurn, // A team is taking their turn
+		Challenge // A team has submitted a chain and it's being challenged
+	}
+	
+	SessionState sessionState;
 	ArrayList<Integer> upToDateIds;
+	
 	int activeTurnTeamId = -1;
+	HashMap<Integer, Chain> challengeChains; //<Team ID, Chain>
 	
 	/**
 	 * @param teacherId The id of the teacher who owns this session
@@ -19,6 +29,7 @@ public class Session {
 		this.teacherId = teacherId;
 		this.schoolClass = new SchoolClass(classId);
 		this.teams = this.schoolClass.getTeams();
+		sessionState = SessionState.Paused;
 	}
 	
 	/**
@@ -31,6 +42,8 @@ public class Session {
 		initializeTeamPositions();
 		System.out.println("Clearing Up To Date Status.");
 		upToDateIds = new ArrayList<Integer>();
+		challengeChains = new HashMap<Integer, Chain>();
+		sessionState = SessionState.PlayerTurn;
 	}
 	
 	/**
@@ -60,7 +73,9 @@ public class Session {
 		markAsUpToDate(requestId);
 		
 		String info = "<board_state>";
-		info += ("<turn_id>" + activeTurnTeamId + "</turn_id>");
+		info += ("<mode>" + sessionState.name() + "</mode>");
+		
+		info += getModeInfoXML(requestId);
 		
 		for(Team team : teams) {
 			info += team.getInfoString();
@@ -70,6 +85,60 @@ public class Session {
 		return info;
 	}
 	
+	private Team getActiveTeam() {
+		for(Team team : schoolClass.getTeams()) {
+			if(team.id == activeTurnTeamId) {
+				return team;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the information needed for the game's current mode
+	 */
+	public String getModeInfoXML(int requestID) {
+		String info = "";
+		
+		if(sessionState.equals(SessionState.PlayerTurn)) {
+			info += ("<turn_id>" + activeTurnTeamId + "</turn_id>");
+			if(getActiveTeam() != null) {
+				info += ("<turn_team_name>" +  getActiveTeam().name + "</turn_team_name>");
+			}
+			info += ("<your_turn>" + (schoolClass.findTeamIdWithStudentId(requestID) == activeTurnTeamId) + "</your_turn>");
+		}
+		else if(sessionState.equals(SessionState.Challenge)) {
+			/*
+			 * <turn_id> 2 </turn_id> // Still need to know whose turn it is.
+			 * <turn_team_name> Gandalf </turn_team_name>
+			 * <your_turn> true </your_turn> // Since client doesn't know team #, this is helpful
+			 * <challenge_chains>
+			 * 		<chain_info>  // Each chain_info represents a team who has challenged and their chain.
+			 * 			<team_id> 2 </team_id>
+			 * 			<chain> ... </chain>
+			 * 		</chain_info>
+			 * 		<chain_info>
+			 * 			...
+			 * 		</chain_info>
+			 * 		...
+			 * </challenge_chains>
+			 */
+			info += ("<turn_id>" + activeTurnTeamId + "</turn_id>");
+			info += ("<turn_team_name>" +  getActiveTeam().name + "</turn_team_name>");
+			info += ("<your_turn>" + (schoolClass.findTeamIdWithStudentId(requestID) == activeTurnTeamId) + "</your_turn>");
+			info += "<challenge_chains>";
+			for(int teamID : challengeChains.keySet()) {
+				info += "<chain_info>";
+				info += "<team_id>" + teamID + "</team_id>";
+				info += challengeChains.get(teamID).generateChainXML();
+				info += "</chain_info>";
+			}
+			info += "</challenge_chains>";
+		}
+		
+		return info;
+	}
+		
 	/**
 	 * Check if someone is up to date
 	 * @return True if up to date. False otherwise.

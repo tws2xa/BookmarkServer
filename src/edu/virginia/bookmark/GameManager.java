@@ -125,7 +125,7 @@ public class GameManager {
 	 * @param id The id of the user to check
 	 * @return The session if a valid session is found, else null.
 	 */
-	private static Session getSessionWithId(int id) {
+	public static Session getSessionWithId(int id) {
 		for(Session session : activeSessions) {
 			if(session.containsPersonWithId(id)) {
 				return session;
