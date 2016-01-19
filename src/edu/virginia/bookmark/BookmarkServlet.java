@@ -37,6 +37,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String GET_CLASS_ARGUMENT_CARD_DECK = "get-class-argument-card-deck";
     private final String GET_CHAIN_FOR_ARGUMENT = "get-chain-for-argument";
     private final String PASS_ON_CHALLENGE = "pass-on-challenge"; // Parameter: "id" (the student id).
+    private final String GET_BOARD_CARD = "get-board-card";
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -283,6 +284,16 @@ public class BookmarkServlet extends HttpServlet {
         	System.out.println("\nReturning: " + retStr + "\n");
         	return new ResponseInfo(200, retStr);
         	
+        case(GET_BOARD_CARD):
+        	int getBoardCard_studentId = Integer.parseInt(params.get("id")[0]);
+        	int getBoardCard_teamId = GameManager.getActiveTeamWithStudentId(getBoardCard_studentId);
+        
+        
+        	String getBoardCard_ret = getBoardCardXML(getBoardCard_teamId, getBoardCard_studentId);
+        	
+        	return new ResponseInfo(200, getBoardCard_ret);
+        	
+        	
         case(PASS_ON_CHALLENGE):
         	int passOnChallenge_StudentId = Integer.parseInt(params.get("id")[0]);
         	return GameManager.passOnChallenge(passOnChallenge_StudentId);
@@ -323,6 +334,32 @@ public class BookmarkServlet extends HttpServlet {
 		xml += "</team_deck>";
 		return xml;
     }
+    
+    private String getBoardCardXML(int teamId, int studentId) {
+    	Session session  = GameManager.getSessionWithId(studentId);
+    	SchoolClass sClass = session.schoolClass;
+    	Board board = session.board;
+    	
+    	Team t = null;
+    	
+    	for(Team team : sClass.getTeams()) {
+    		if(team.id == teamId) {
+    			t = team;
+    			break;
+    		}
+    	}
+    	
+    	
+    	
+    	
+    	Card card = board.returnCardAtPos(t.getPosition());
+    	
+    	String xml = "";
+    	
+    	xml += card.generateCardXML();
+    	
+    	return xml;
         
-	
+    }
+    
 }
