@@ -1,5 +1,6 @@
 package edu.virginia.bookmark;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,6 +11,7 @@ public class Session {
 	Board board;
 	SchoolClass schoolClass;
 	ArrayList<Team> teams;
+	
 	
 	enum SessionState {
 		Paused, // Nothing happening yet
@@ -40,7 +42,7 @@ public class Session {
 	 */
 	public void startSession() {
 		System.out.println("Creating Board");
-		this.board = new Board(teams);
+		this.board = new Board(teams, schoolClass.getClassDeck());
 		System.out.println("Setting Team Positions.");
 		initializeTeamPositions();
 		System.out.println("Clearing Up To Date Status.");
@@ -89,6 +91,17 @@ public class Session {
 		for(Team team : teams) {
 			info += team.getInfoString();
 		}
+
+		info += "<board_cards>";
+
+		for(int i = 0; i < board.BOARD_WIDTH; i++) {
+			for(int j = 0; j < board.BOARD_HEIGHT; j++) {
+				Point temp = new Point(i, j);
+				info += board.returnCardAtPos(temp).generateCardXML();
+			}
+		}
+
+		info += "</board_cards>";
 		
 		info += "</board_state>";
 		return info;
