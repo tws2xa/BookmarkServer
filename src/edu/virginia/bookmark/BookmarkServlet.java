@@ -38,6 +38,8 @@ public class BookmarkServlet extends HttpServlet {
     private final String GET_CHAIN_FOR_ARGUMENT = "get-chain-for-argument";
     private final String PASS_ON_CHALLENGE = "pass-on-challenge"; // Parameter: "id" (the student id).
     private final String GET_BOARD_CARD = "get-board-card";
+    private final String SUBMIT_WINNING_CHAIN = "submit-winning-chain"; // Parameters: "id" (student id), "chain_xml" (xml of chain to submit).
+    
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -287,16 +289,19 @@ public class BookmarkServlet extends HttpServlet {
         case(GET_BOARD_CARD):
         	int getBoardCard_studentId = Integer.parseInt(params.get("id")[0]);
         	int getBoardCard_teamId = GameManager.getActiveTeamWithStudentId(getBoardCard_studentId);
-        
-        
-        	String getBoardCard_ret = getBoardCardXML(getBoardCard_teamId, getBoardCard_studentId);
-        	
+
+        	String getBoardCard_ret = getBoardCardXML(getBoardCard_teamId, getBoardCard_studentId);        	
         	return new ResponseInfo(200, getBoardCard_ret);
-        	
         	
         case(PASS_ON_CHALLENGE):
         	int passOnChallenge_StudentId = Integer.parseInt(params.get("id")[0]);
         	return GameManager.passOnChallenge(passOnChallenge_StudentId);
+        	
+        case(SUBMIT_WINNING_CHAIN):
+    		int submitWinningChain_StudentId = Integer.parseInt(params.get("id")[0]);
+    		String submitWinningChain_ChainXML = params.get("chain_xml")[0];
+    		Chain submit_WinningChain_Chain = Chain.generateChainFromXML(submitWinningChain_ChainXML);
+    		return GameManager.submitWinningChain(submitWinningChain_StudentId, submit_WinningChain_Chain);
         	
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);

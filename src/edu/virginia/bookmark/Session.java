@@ -76,6 +76,12 @@ public class Session {
 		this.clearUpToDateStatus();
 	}
 	
+	public void advanceTurn() {
+		int newTurn = (this.activeTurnTeamId + 1) % schoolClass.getTeams().size();
+		this.activeTurnTeamId = newTurn;
+		this.clearUpToDateStatus();
+	}
+	
 	/**
 	 * Gets an XML string representing the board state
 	 * @param requestId The id of the user requesting info.

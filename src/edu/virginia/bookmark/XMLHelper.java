@@ -25,8 +25,13 @@ public class XMLHelper {
 	 * Get an int value from an xml element
 	 */
 	protected static int getIntValue(Element ele, String tagName) {
-		//in production application you would catch the exception
-		return Integer.parseInt(getTextValue(ele,tagName));
+		// Remove decimal point.
+		String text = getTextValue(ele,tagName);
+		int decimalPointIndex = text.indexOf('.');
+		if(decimalPointIndex >= 0) {
+			text = text.substring(0, decimalPointIndex);
+		}
+		return Integer.parseInt(text);
 	}
 	
 	/**
