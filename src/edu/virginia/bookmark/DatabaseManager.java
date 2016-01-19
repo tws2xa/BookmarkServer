@@ -833,6 +833,11 @@ public class DatabaseManager {
 			DatabaseManager.addCard(connection, 7, 1, CardType.Other.name() , "Here is an incredibly original thought! I love this game!!", -1, -1);
 			DatabaseManager.addCard(connection, 7, 1, CardType.Imagery.name() , "Beautiful words paint a beautiful picture! I love this game!", 8, 10);
 			
+			DatabaseManager.addCard(connection, 6, 1, CardType.Theme.name() , "This theme is central to the novel! Wow!", -1, -1);
+			DatabaseManager.addCard(connection, 6, 1, CardType.Argument.name() , "The argument is this! Wahoo!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, CardType.Other.name() , "Here is a brand new thought! I love this game!!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, CardType.Imagery.name() , "Pictures! I love this game!", 8, 10);
+			
 			// Test Teams
 			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
 			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Daleks', 1)");

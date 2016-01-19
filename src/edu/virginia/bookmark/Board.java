@@ -26,12 +26,24 @@ public class Board {
 		for(int i = 0; i < BOARD_WIDTH; i++) {
 			for(int j = 0; j < BOARD_HEIGHT; j++) {
 			
-			index = rand.nextInt(BOARD_WIDTH*BOARD_HEIGHT);
+			index = rand.nextInt(classCards.size()-1);
 			
-			if(!usedNums.contains(index)) {
-				board[i][j] = classCards.get(index);
-				usedNums.add(index);
+			int numRands = 0;
+			while(usedNums.contains(index) && numRands < 100) {
+				index = rand.nextInt(classCards.size()-1);
+				numRands++;
+			}
+			
+			if(numRands >= 100 && classCards.size() >= BOARD_WIDTH*BOARD_HEIGHT) {
+				index = 0;
+				while(usedNums.contains(index)) {
+					index++;
 				}
+			}
+			
+			board[i][j] = classCards.get(index);
+			usedNums.add(index);
+			
 			}
 			
 		}
