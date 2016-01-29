@@ -50,11 +50,10 @@ public class BookmarkServlet extends HttpServlet {
 	        
 	        // Allow localhost communication
 	        //
-	        response.addHeader("Access-Control-Allow-Origin", "http://localhost");
+	        // response.addHeader("Access-Control-Allow-Origin", "http://localhost");
 	        
 	        // Allow gdrg.cs.viginia.edu communication
-	        //
-	        // response.addHeader("Access-Control-Allow-Origin", "http://gdrg.cs.virginia.edu");
+	        response.addHeader("Access-Control-Allow-Origin", "http://gdrg.cs.virginia.edu");
 	        
 	        // Must designate an action
 	        //
