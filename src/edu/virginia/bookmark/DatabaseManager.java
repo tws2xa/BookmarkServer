@@ -832,12 +832,20 @@ public class DatabaseManager {
 			DatabaseManager.addCard(connection, 6, 1, CardType.Argument.name() , "This is a thing I believe! Yowzah!", -1, -1);
 			DatabaseManager.addCard(connection, 7, 1, CardType.Other.name() , "Here is an incredibly original thought! I love this game!!", -1, -1);
 			DatabaseManager.addCard(connection, 7, 1, CardType.Imagery.name() , "Beautiful words paint a beautiful picture! I love this game!", 8, 10);
-			
-			DatabaseManager.addCard(connection, 6, 1, CardType.Theme.name() , "This theme is central to the novel! Wow!", -1, -1);
-			DatabaseManager.addCard(connection, 6, 1, CardType.Argument.name() , "The argument is this! Wahoo!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, CardType.Other.name() , "Here is a brand new thought! I love this game!!", -1, -1);
+			DatabaseManager.addCard(connection, 2, 1, CardType.Plot_Point.name(),  "People did things! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 2, 1, CardType.Theme.name(), "Here is a theme! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 3, 1, CardType.Plot_Point.name() , "A thing occurred! Huzzah!", 2, -1);
+			DatabaseManager.addCard(connection, 3, 1, CardType.Tone.name() , "A tone! Huzzah!", 7, 8);
+			DatabaseManager.addCard(connection, 4, 1, CardType.Plot_Point.name() , "Cool stuff happened! Yippie!", 6, 7);
+			DatabaseManager.addCard(connection, 4, 1, CardType.Argument.name() , "The argument is this! Yippie!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, CardType.Plot_Point.name() , "Happenings! Woohoo!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, CardType.Imagery.name() , "I found some descriptive words! Woohoo!", 9, -1);
+			DatabaseManager.addCard(connection, 6, 1, CardType.Plot_Point.name() , "This is a thing that happened! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 6, 1, CardType.Diction.name() , "Word choice! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, CardType.Plot_Point.name() , "Here is a brand new thought! I love this game!!", -1, -1);
 			DatabaseManager.addCard(connection, 7, 1, CardType.Imagery.name() , "Pictures! I love this game!", 8, 10);
-			
+
+
 			// Test Teams
 			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
 			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Daleks', 1)");
