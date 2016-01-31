@@ -240,15 +240,18 @@ public class BookmarkServlet extends HttpServlet {
         	if(addCard_ClassId == -1) {
         		System.out.println("USING DEFAULT CLASS FOR ADD STUDENT CARD.");
         		addCard_ClassId = DatabaseManager.getClassContainingStudent(addCard_StudentId);
-    			if(addCard_ClassId == -1) {
+        		if(addCard_ClassId == -1) {
     				return new ResponseInfo(400, "Could not find class containing student with id #" + addCard_StudentId);
     			}
         	}
+        	
+        	int addCard_AssignmentId = DatabaseManager.getCurrentAssignmentIDForClass(addCard_ClassId);
         	
         	if(addCard_EditId == -1) {
 	        	DatabaseManager.addCardForStudent(
 	        			addCard_StudentId,
 	        			addCard_ClassId,
+	        			addCard_AssignmentId,
 	        			addCard_Type,
 	        			addCard__Body,
 	        			addCard_PageStart,
@@ -335,7 +338,8 @@ public class BookmarkServlet extends HttpServlet {
      * @param studentId The id of the student whose deck we are looking up
      */
     private String getStudentDeckXML(int studentId, int classId) {
-    	ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(studentId, classId);
+    	int currentAssignmentId = DatabaseManager.getCurrentAssignmentIDForClass(classId);
+    	ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(studentId, classId, currentAssignmentId);
     	String xml = "<deck>";
     	for(int cardId : cardIds) {
 			Card card = new Card(cardId);

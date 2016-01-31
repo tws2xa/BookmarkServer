@@ -30,7 +30,7 @@ import java.util.HashMap;
  * 		[int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
  * 
  * Table: Classes
- * 		[int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][TimeStamp TIMESTAMP]
+ * 		[int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
  * 
  * Table: Teams
  * 		[int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
@@ -42,7 +42,7 @@ import java.util.HashMap;
  * 		[int TeamID][int StudentID][TimeStamp TIMESTAMP]
  * 
  * Table: Cards
- * 		[int CardID unique][int PersonID][int ClassID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
+ * 		[int CardID unique][int PersonID][int ClassID][int AssignmentID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
  * 
  * Table: Chains
  * 		[int ChainID][int ArgumentCardID][char(120) ChainQuality][TimeStamp TIMESTAMP]
@@ -109,6 +109,7 @@ public class DatabaseManager {
 					+ "ClassName CHAR(120) NOT NULL, "
 					+ "ClassInfo TEXT, "
 					+ "TeacherID INT NOT NULL, "
+					+ "CurrentAssignmentID INT NOT NULL, "
 					+ "TimeStamp TIMESTAMP);");
 			
 			// Teams
@@ -133,6 +134,7 @@ public class DatabaseManager {
 					+ "(CardID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
 					+ "PersonID INT NOT NULL, "
 					+ "ClassID INT NOT NULL, "
+					+ "AssignmentID INT NOT NULL, "
 					+ "CardType CHAR(120) NOT NULL, "
 					+ "CardBody TEXT, "
 					+ "PageStart INT, "
@@ -223,6 +225,20 @@ public class DatabaseManager {
 		}
 		
 		return teamIds;
+	}
+	
+	/**
+	 * Returns the id of the current assignment for the class with the given id.
+	 * Returns -1 if no class is found with the given id.
+	 */
+	public static int getCurrentAssignmentIDForClass(int classId) {
+		String query = "SELECT CurrentAssignmentID FROM Classes WHERE ClassID=" + classId + ";";
+		int assignmentID = DatabaseManager.getIntFromDB(
+				"Get Current Assignment For Class " + classId,
+				query,
+				"CurrentAssignmentID",
+				-1);
+		return assignmentID;
 	}
 	
 	// --------------------------------------------------------------------------
@@ -336,7 +352,7 @@ public class DatabaseManager {
 			statement = connection.createStatement();
 			
 			// Table: Cards
-			// [int CardID unique][int PersonID][int ClassID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
+			// [int CardID unique][int PersonID][int ClassID][int AssignmentID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
 					 
 			String query = "SELECT * FROM Cards WHERE CardID=" + cardId + ";";
 			ResultSet results = statement.executeQuery(query);
@@ -390,7 +406,7 @@ public class DatabaseManager {
 	/**
 	 * Uses the id to lookup the id's of every card in the student's deck. 
 	 */
-	public static ArrayList<Integer> loadStudentDeckIds(int studentId, int classId) {
+	public static ArrayList<Integer> loadStudentDeckIds(int studentId, int classId, int assignmentId) {
 		ArrayList<Integer> cardIds = new ArrayList<Integer>();	
 		
 		MysqlDataSource datasource = null;
@@ -409,7 +425,7 @@ public class DatabaseManager {
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
 				
-			String query = ("SELECT CardID FROM Cards WHERE PersonID=" + studentId + " AND ClassID=" + classId + ";");
+			String query = ("SELECT CardID FROM Cards WHERE PersonID=" + studentId + " AND ClassID=" + classId + " AND AssignmentID=" + assignmentId + ";");
 			ResultSet results = statement.executeQuery(query);
 			while(results.next()) {
 				cardIds.add(results.getInt("CardID"));
@@ -752,7 +768,7 @@ public class DatabaseManager {
 		}
 	}
 	
-	public static void addCardForStudent(int studentID, int classID, String cardType, String cardBody, int pageStart, int pageEnd) {
+	public static void addCardForStudent(int studentID, int classID, int assignmentID, String cardType, String cardBody, int pageStart, int pageEnd) {
 		MysqlDataSource datasource = null;
 		Connection connection = null;
 		Statement statement = null;
@@ -769,7 +785,7 @@ public class DatabaseManager {
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
 			
-			DatabaseManager.addCard(connection, studentID, classID, cardType, cardBody, pageStart, pageEnd);
+			DatabaseManager.addCard(connection, studentID, classID, assignmentID, cardType, cardBody, pageStart, pageEnd);
 			
 		} catch(SQLException ex) {
 			System.out.println("SQL Exception in Add Card for Student: " + ex.getMessage());
@@ -810,8 +826,8 @@ public class DatabaseManager {
 				
 
 			// Test Class
-			// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][TimeStamp TIMESTAMP]
-			statement.executeUpdate("INSERT INTO Classes (ClassName, ClassInfo, TeacherID) VALUES ('Test Class', 'This test class has Doctors in it!', 1)");
+			// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO Classes (ClassName, ClassInfo, TeacherID, CurrentAssignmentID) VALUES ('Test Class', 'This test class has Doctors in it!', 1, 0)");
 			
 			// Test Teacher
 			// People: [int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
@@ -826,30 +842,30 @@ public class DatabaseManager {
 			DatabaseManager.addStudent(statement, "Doc7", "Doc7", "Sylvester McCoy", 1);
 			
 			// Cards
-			DatabaseManager.addCard(connection, 2, 1, CardType.Argument.name(),  "Here is the point I wish to argue! Hooray!", -1, -1);
-			DatabaseManager.addCard(connection, 2, 1, CardType.Tone.name(), "I have uncovered the mysteries of Tone! Hooray!", -1, -1);
-			DatabaseManager.addCard(connection, 3, 1, CardType.Imagery.name() , "Here is some imagery! Huzzah!", 2, -1);
-			DatabaseManager.addCard(connection, 3, 1, CardType.Diction.name() , "Words are my speciality! Huzzah!", 7, 8);
-			DatabaseManager.addCard(connection, 4, 1, CardType.Diction.name() , "Here are some fancy words! Yippie!", 6, 7);
-			DatabaseManager.addCard(connection, 4, 1, CardType.Theme.name() , "I theme, you theme, we all theme for Ice Cream! Yippie!", -1, -1);
-			DatabaseManager.addCard(connection, 5, 1, CardType.Tone.name() , "This is how the author felt when writing! Woohoo!", -1, -1);
-			DatabaseManager.addCard(connection, 5, 1, CardType.Other.name() , "I found some alliteration! Woohoo!", 9, -1);
-			DatabaseManager.addCard(connection, 6, 1, CardType.Theme.name() , "Here is a main, underlying idea of the text! Yowzah!", -1, -1);
-			DatabaseManager.addCard(connection, 6, 1, CardType.Argument.name() , "This is a thing I believe! Yowzah!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, CardType.Other.name() , "Here is an incredibly original thought! I love this game!!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, CardType.Imagery.name() , "Beautiful words paint a beautiful picture! I love this game!", 8, 10);
-			DatabaseManager.addCard(connection, 2, 1, CardType.Plot_Point.name(),  "People did things! Hooray!", -1, -1);
-			DatabaseManager.addCard(connection, 2, 1, CardType.Theme.name(), "Here is a theme! Hooray!", -1, -1);
-			DatabaseManager.addCard(connection, 3, 1, CardType.Plot_Point.name() , "A thing occurred! Huzzah!", 2, -1);
-			DatabaseManager.addCard(connection, 3, 1, CardType.Tone.name() , "A tone! Huzzah!", 7, 8);
-			DatabaseManager.addCard(connection, 4, 1, CardType.Plot_Point.name() , "Cool stuff happened! Yippie!", 6, 7);
-			DatabaseManager.addCard(connection, 4, 1, CardType.Argument.name() , "The argument is this! Yippie!", -1, -1);
-			DatabaseManager.addCard(connection, 5, 1, CardType.Plot_Point.name() , "Happenings! Woohoo!", -1, -1);
-			DatabaseManager.addCard(connection, 5, 1, CardType.Imagery.name() , "I found some descriptive words! Woohoo!", 9, -1);
-			DatabaseManager.addCard(connection, 6, 1, CardType.Plot_Point.name() , "This is a thing that happened! Yowzah!", -1, -1);
-			DatabaseManager.addCard(connection, 6, 1, CardType.Diction.name() , "Word choice! Yowzah!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, CardType.Plot_Point.name() , "Here is a brand new thought! I love this game!!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, CardType.Imagery.name() , "Pictures! I love this game!", 8, 10);
+			DatabaseManager.addCard(connection, 2, 1, 0, CardType.Argument.name(),  "Here is the point I wish to argue! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 2, 1, 0, CardType.Tone.name(), "I have uncovered the mysteries of Tone! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 3, 1, 0, CardType.Imagery.name() , "Here is some imagery! Huzzah!", 2, -1);
+			DatabaseManager.addCard(connection, 3, 1, 0, CardType.Diction.name() , "Words are my speciality! Huzzah!", 7, 8);
+			DatabaseManager.addCard(connection, 4, 1, 0, CardType.Diction.name() , "Here are some fancy words! Yippie!", 6, 7);
+			DatabaseManager.addCard(connection, 4, 1, 0, CardType.Theme.name() , "I theme, you theme, we all theme for Ice Cream! Yippie!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, 0, CardType.Tone.name() , "This is how the author felt when writing! Woohoo!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, 0, CardType.Other.name() , "I found some alliteration! Woohoo!", 9, -1);
+			DatabaseManager.addCard(connection, 6, 1, 0, CardType.Theme.name() , "Here is a main, underlying idea of the text! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 6, 1, 0, CardType.Argument.name() , "This is a thing I believe! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, 0, CardType.Other.name() , "Here is an incredibly original thought! I love this game!!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, 0, CardType.Imagery.name() , "Beautiful words paint a beautiful picture! I love this game!", 8, 10);
+			DatabaseManager.addCard(connection, 2, 1, 0, CardType.Plot_Point.name(),  "People did things! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 2, 1, 0, CardType.Theme.name(), "Here is a theme! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 3, 1, 0, CardType.Plot_Point.name() , "A thing occurred! Huzzah!", 2, -1);
+			DatabaseManager.addCard(connection, 3, 1, 0, CardType.Tone.name() , "A tone! Huzzah!", 7, 8);
+			DatabaseManager.addCard(connection, 4, 1, 0, CardType.Plot_Point.name() , "Cool stuff happened! Yippie!", 6, 7);
+			DatabaseManager.addCard(connection, 4, 1, 0, CardType.Argument.name() , "The argument is this! Yippie!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, 0, CardType.Plot_Point.name() , "Happenings! Woohoo!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, 0, CardType.Imagery.name() , "I found some descriptive words! Woohoo!", 9, -1);
+			DatabaseManager.addCard(connection, 6, 1, 0, CardType.Plot_Point.name() , "This is a thing that happened! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 6, 1, 0, CardType.Diction.name() , "Word choice! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, 0, CardType.Plot_Point.name() , "Here is a brand new thought! I love this game!!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, 0, CardType.Imagery.name() , "Pictures! I love this game!", 8, 10);
 
 
 			// Test Teams
@@ -1019,19 +1035,21 @@ public class DatabaseManager {
 			Connection connection,
 			int studentID,
 			int classID,
+			int assignmentID,
 			String cardType,
 			String cardBody,
 			int pageStart,
 			int pageEnd) throws SQLException {
 		
-		PreparedStatement prepStmt = connection.prepareStatement("INSERT INTO Cards (PersonID, ClassID, CardType, CardBody, PageStart, PageEnd) VALUES (?, ?, ?, ?, ?, ?);");
+		PreparedStatement prepStmt = connection.prepareStatement("INSERT INTO Cards (PersonID, ClassID, AssignmentID, CardType, CardBody, PageStart, PageEnd) VALUES (?, ?, ?, ?, ?, ?, ?);");
 		
 		prepStmt.setInt(1,  studentID);
 		prepStmt.setInt(2, classID);
-		prepStmt.setString(3, cardType);
-		prepStmt.setString(4, cardBody);
-		prepStmt.setInt(5, pageStart);
-		prepStmt.setInt(6, pageEnd);
+		prepStmt.setInt(3, assignmentID);
+		prepStmt.setString(4, cardType);
+		prepStmt.setString(5, cardBody);
+		prepStmt.setInt(6, pageStart);
+		prepStmt.setInt(7, pageEnd);
 
 		prepStmt.executeUpdate();
 		
