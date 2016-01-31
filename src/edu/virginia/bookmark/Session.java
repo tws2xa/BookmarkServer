@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.virginia.bookmark.Chain.ChainQuality;
 import edu.virginia.bookmark.Session.SessionState;
 
 public class Session {
@@ -231,8 +232,9 @@ public class Session {
 	
 	/**
 	 * Adds a chain to the list of challenges
+	 * Returns integer id used to access chain in the future.
 	 */
-	public void addChallenge(int studentId, Chain chain, boolean first) {
+	public int addChallenge(int studentId, Chain chain, boolean first) {
 		if(first) {
 			// First challenge. Prep submission status.
 			for(Team team : schoolClass.getTeams()) {
@@ -242,6 +244,39 @@ public class Session {
 		int teamId = schoolClass.findTeamIdWithStudentId(studentId);
 		this.challengeChains.put(teamId, chain);
 		registerTeamChallengeResponse(teamId);
+		return teamId;
+	}
+	
+	/**
+	 * Selects the chain with the given id as the challenge winner.
+	 */
+	public void selectChallengeWinner(int chainAccessor, Chain chain) {
+		int teamId = chainAccessor;
+		ChainQuality quality = chain.quality;
+		
+		int scoreToAdd = 0;
+		if(quality.equals(ChainQuality.Excellent)) {
+			scoreToAdd = 5;
+		} else if (quality.equals(ChainQuality.Good)) {
+			scoreToAdd = 3;
+		} else if(quality.equals(ChainQuality.Average)) {
+			scoreToAdd = 2;
+		} else if(quality.equals(ChainQuality.Poor)) {
+			scoreToAdd = 0;
+		} else {
+			System.out.println("Unknown Chain Quality: " + quality);
+		}
+		
+		this.getTeamWithId(teamId).score += scoreToAdd;
+	}
+	
+	public Team getTeamWithId(int teamId) {
+		for(Team team : teams) {
+			if(team.id == teamId) {
+				return team;
+			}
+		}
+		return null;
 	}
 	
 	/**

@@ -67,29 +67,35 @@ public class GameManager {
 	 * Handle Chain Submission
 	 */
 	public static ResponseInfo submitChain(int id, Chain chain) {
-		System.out.println("Chain Submitted");		
+		System.out.println("Chain Submitted");
 		Session activeSession = GameManager.getSessionWithId(id);
 		if(activeSession == null) {
 			return new ResponseInfo(400, "Cannot find session containing id " + id);
 		}
 		
 		boolean firstChain = (activeSession.getSessionState() != SessionState.Challenge);
-		if(firstChain) activeSession.setSessionState(SessionState.Challenge);
-		activeSession.addChallenge(id, chain, firstChain);
+		if(firstChain) {
+			activeSession.setSessionState(SessionState.Challenge);
+		}
+		
+		
+		int chainAccessId = activeSession.addChallenge(id, chain, firstChain);
 		activeSession.clearUpToDateStatus();
 		
-		return new ResponseInfo(200, "Entering Challenge State");
+		// Return the id used to access the chain again (which is actually just the team id).
+		return new ResponseInfo(200, "" + chainAccessId);
 	}
 	
-	public static ResponseInfo submitWinningChain(int id, Chain chain) {
-		System.out.println("Winning Chain Submitted.");
+	public static ResponseInfo submitWinningChain(int id, int chainAccessor, Chain chain) {
+		System.out.println("Winning Chain Submitted. Quality: " + chain.quality);
 		
 		Session activeSession = GameManager.getSessionWithId(id);
 		if(activeSession == null) {
 			return new ResponseInfo(400, "Cannot find session containing id " + id);
 		}
-
+		
 		DatabaseManager.addChainToDatabase(chain);
+		activeSession.selectChallengeWinner(chainAccessor, chain);
 		activeSession.advanceTurn();
 		activeSession.setSessionState(SessionState.PlayerTurn);
 		activeSession.clearUpToDateStatus();

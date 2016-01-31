@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,12 +21,27 @@ import org.xml.sax.SAXException;
 import edu.virginia.bookmark.Card.CardType;
 
 public class Chain {
+	public enum ChainQuality {
+		Excellent,
+		Good,
+		Average,
+		Poor,
+		Unset
+	}
+	
 	HashMap<Card, Point> cards;
 	ArrayList<int[]> links;
-		
+	ChainQuality quality;
+	
+	
 	public Chain(HashMap<Card, Point> cards, ArrayList<int[]> links) {
+		this(cards, links, ChainQuality.Unset);
+	}
+	
+	public Chain(HashMap<Card, Point> cards, ArrayList<int[]> links, ChainQuality quality) {
 		this.cards = cards;
 		this.links = links;
+		this.quality = quality;
 	}
 
 	/**
@@ -60,7 +76,9 @@ public class Chain {
 	 */
 	public String generateChainXML() {
 		String xmlStr = "<chain>";
-
+		
+		xmlStr += "<quality>" + quality + "</quality>";
+		
 		// Card Info (Card and position)
 		xmlStr += "<cards>";
 		for(Card card : cards.keySet()) {
@@ -111,6 +129,14 @@ public class Chain {
 				return null;
 			}
 			Element chainData = (Element) allChains.item(0);
+
+			// ------------- Getting Chain Quality (If Exists) -------------
+			ChainQuality chainQuality = ChainQuality.Unset;
+			String chainQualityStr = XMLHelper.getTextValue(chainData, "quality");
+			
+			if(chainQualityStr != null && !chainQualityStr.isEmpty()) {
+				chainQuality = ChainQuality.valueOf(chainQualityStr);
+			}
 			
 			HashMap<Card, Point> newCardsAndPos = new HashMap<Card, Point>();
 			ArrayList<int[]> newLinks = new ArrayList<int[]>();
@@ -144,7 +170,7 @@ public class Chain {
 				newLinks.add(link);
 			}
 						
-			return new Chain(newCardsAndPos, newLinks);
+			return new Chain(newCardsAndPos, newLinks, chainQuality);
 		} catch (SAXException e) {
 			System.out.println("SAXException Parsing Chain XML: " + e.getMessage());
 			e.printStackTrace();
