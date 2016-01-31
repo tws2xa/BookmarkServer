@@ -23,7 +23,7 @@ public class Session {
 	private SessionState sessionState;
 	ArrayList<Integer> upToDateIds;
 	
-	int activeTurnTeamId = -1;
+	int activeTurnTeamIndex = -1;
 	HashMap<Integer, Chain> challengeChains; //<Team ID, Chain>
 	HashMap<Integer, Boolean> challengeSubmissionStatus; // <Team ID, true/false (has responded/passed for challenge).>
 	
@@ -78,8 +78,9 @@ public class Session {
 	}
 	
 	public void advanceTurn() {
-		int newTurn = (this.activeTurnTeamId + 1) % schoolClass.getTeams().size();
-		this.activeTurnTeamId = newTurn;
+		int newTurn = (this.activeTurnTeamIndex + 1) % (schoolClass.getTeams().size());
+		this.activeTurnTeamIndex = newTurn;
+		System.out.println("New Turn - Team ID: " + this.activeTurnTeamIndex + " Team Name: " + getActiveTeam().name);
 		this.clearUpToDateStatus();
 	}
 	
@@ -115,12 +116,10 @@ public class Session {
 	}
 	
 	private Team getActiveTeam() {
-		for(Team team : schoolClass.getTeams()) {
-			if(team.id == activeTurnTeamId) {
-				return team;
-			}
+		if(this.activeTurnTeamIndex < 0) {
+			return null;
 		}
-		return null;
+		return this.teams.get(this.activeTurnTeamIndex);
 	}
 	
 	/**
@@ -128,13 +127,19 @@ public class Session {
 	 */
 	public String getModeInfoXML(int requestID) {
 		String info = "";
+		int activeTeamId = -1;
+		String activeTeamName = "";
+		if(getActiveTeam() != null) {
+			activeTeamId = getActiveTeam().id;
+			activeTeamName = getActiveTeam().name;
+		}
 		
 		if(sessionState.equals(SessionState.PlayerTurn)) {
-			info += ("<turn_id>" + activeTurnTeamId + "</turn_id>");
+			info += ("<turn_id>" + activeTeamId + "</turn_id>");
 			if(getActiveTeam() != null) {
-				info += ("<turn_team_name>" +  getActiveTeam().name + "</turn_team_name>");
+				info += ("<turn_team_name>" +  activeTeamName + "</turn_team_name>");
 			}
-			info += ("<your_turn>" + (schoolClass.findTeamIdWithStudentId(requestID) == activeTurnTeamId) + "</your_turn>");
+			info += ("<your_turn>" + (schoolClass.findTeamIdWithStudentId(requestID) == activeTeamId) + "</your_turn>");
 		}
 		else if(sessionState.equals(SessionState.Challenge)) {
 			/*
@@ -152,9 +157,9 @@ public class Session {
 			 * 		...
 			 * </challenge_chains>
 			 */
-			info += ("<turn_id>" + activeTurnTeamId + "</turn_id>");
-			info += ("<turn_team_name>" +  getActiveTeam().name + "</turn_team_name>");
-			info += ("<your_turn>" + (schoolClass.findTeamIdWithStudentId(requestID) == activeTurnTeamId) + "</your_turn>");
+			info += ("<turn_id>" + activeTeamId + "</turn_id>");
+			info += ("<turn_team_name>" +  activeTeamName + "</turn_team_name>");
+			info += ("<your_turn>" + (schoolClass.findTeamIdWithStudentId(requestID) == activeTeamId) + "</your_turn>");
 			info += "<challenge_chains>";
 			for(int teamID : challengeChains.keySet()) {
 				info += "<chain_info>";
@@ -221,8 +226,8 @@ public class Session {
 		for(Team team : teams) {
 			if(team.containsStudentWithId(id)) {
 				System.out.println("Adding a Student From Team " + team.getName());
-				if(activeTurnTeamId < 0) {
-					activeTurnTeamId = team.id;
+				if(activeTurnTeamIndex < 0) {
+					activeTurnTeamIndex = 0;
 				}
 				clearUpToDateStatus();
 				return;
