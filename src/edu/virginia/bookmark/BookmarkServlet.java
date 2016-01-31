@@ -30,7 +30,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String IS_TEACHER = "is-teacher";
     private final String CHECK_BOARD_UPDATE = "check-board-update";
     private final String GET_BOARD_STATE = "get-board-state";
-    private final String SUBMIT_CHAIN = "submit-chain";
+    private final String SUBMIT_CHAIN = "submit-chain"; // Parameters: "id" (Chain id), "chain_xml" (xml of the chain to submit).
     private final String GET_STUDENT_DECK = "get-student-deck";
     private final String GET_TEAM_DECK = "get-team-deck";
     private final String STUDENT_ADD_CARD = "student-add-card";
@@ -38,7 +38,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String GET_CHAIN_FOR_ARGUMENT = "get-chain-for-argument";
     private final String PASS_ON_CHALLENGE = "pass-on-challenge"; // Parameter: "id" (the student id).
     private final String GET_BOARD_CARD = "get-board-card";
-    private final String SUBMIT_WINNING_CHAIN = "submit-winning-chain"; // Parameters: "id" (student id), "chain_xml" (xml of chain to submit).
+    private final String SUBMIT_WINNING_CHAIN = "submit-winning-chain"; // Parameters: "id" (student id), "chain_accessor" (id to access the chain), "chain_xml" (xml of chain to submit).
     
             
     @Override
@@ -195,8 +195,8 @@ public class BookmarkServlet extends HttpServlet {
     	
     	case(SUBMIT_CHAIN):
     		int submitChainId = Integer.parseInt(params.get("id")[0]);
-    		
     		String chainXML = params.get("chain_xml")[0];
+    		
     		Chain chain = Chain.generateChainFromXML(chainXML);
     		return GameManager.submitChain(submitChainId, chain);
     	
@@ -298,9 +298,10 @@ public class BookmarkServlet extends HttpServlet {
         	
         case(SUBMIT_WINNING_CHAIN):
     		int submitWinningChain_StudentId = Integer.parseInt(params.get("id")[0]);
+        	int submitWinningChain_ChainAccessor = Integer.parseInt(params.get("chain_accessor")[0]);
     		String submitWinningChain_ChainXML = params.get("chain_xml")[0];
     		Chain submit_WinningChain_Chain = Chain.generateChainFromXML(submitWinningChain_ChainXML);
-    		return GameManager.submitWinningChain(submitWinningChain_StudentId, submit_WinningChain_Chain);
+    		return GameManager.submitWinningChain(submitWinningChain_StudentId, submitWinningChain_ChainAccessor, submit_WinningChain_Chain);
         	
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
