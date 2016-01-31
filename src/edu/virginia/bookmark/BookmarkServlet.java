@@ -397,6 +397,7 @@ public class BookmarkServlet extends HttpServlet {
     		if(t.id == team) {
     			t.setPosition(pos);
     			success = true;
+    			session.advanceTurn();
     			session.clearUpToDateStatus();
     			break;
     		}
