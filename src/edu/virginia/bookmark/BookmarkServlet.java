@@ -312,14 +312,16 @@ public class BookmarkServlet extends HttpServlet {
 
     		return GameManager.submitWinningChain(submitWinningChain_StudentId, submitWinningChain_ChainAccessor, submit_WinningChain_Chain);
     		
-    		/*    case(UPDATE_TEAM_POSITION):
+       case(UPDATE_TEAM_POSITION):
         	int updateTeamPos_studentId = Integer.parseInt(params.get("id")[0]);
-        
-        	if(setTeamPos(updateTeamPos_studentId)) {
-        		return new ResponseInfo(200, updateTeamPos_ret);
+       		int posX = Integer.parseInt(params.get("posX")[0]);
+       		int posY = Integer.parseInt(params.get("posY")[0]);
+       		
+        	if(setTeamPos(updateTeamPos_studentId, posX, posY)) {
+        		return new ResponseInfo(200, "Success");
         	}
-        	return new ResponseInfo(500, "Failure Updating Team Pos: " + updateTeamPos_ret);
-        	*/
+        	return new ResponseInfo(500, "Failure Updating Team Pos: " + Integer.toString(updateTeamPos_studentId));
+        	
   
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
@@ -384,24 +386,25 @@ public class BookmarkServlet extends HttpServlet {
 		return xml;
     }
     
-    /*private boolean setTeamPos(int studentId) {
+    private boolean setTeamPos(int studentId, int x, int y) {
     	boolean success = false;
     	Session session  = GameManager.getSessionWithId(studentId);
     	SchoolClass sClass = session.schoolClass;
     	
     	int team = session.schoolClass.findTeamIdWithStudentId(studentId);
-    	Point pos = new Point();
+    	Point pos = new Point(x, y);
     	for(Team t : sClass.getTeams()) {
     		if(t.id == team) {
     			t.setPosition(pos);
     			success = true;
+    			session.clearUpToDateStatus();
     			break;
     		}
     	}
     	
     	return success;
     }
-    */
+    
     private String getBoardCardXML(int teamId, int studentId) {
     	Session session  = GameManager.getSessionWithId(studentId);
     	SchoolClass sClass = session.schoolClass;
