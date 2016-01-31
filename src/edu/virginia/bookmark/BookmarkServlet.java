@@ -317,6 +317,7 @@ public class BookmarkServlet extends HttpServlet {
        		int posX = Integer.parseInt(params.get("posX")[0]);
        		int posY = Integer.parseInt(params.get("posY")[0]);
        		
+       		
         	if(setTeamPos(updateTeamPos_studentId, posX, posY)) {
         		return new ResponseInfo(200, "Success");
         	}
