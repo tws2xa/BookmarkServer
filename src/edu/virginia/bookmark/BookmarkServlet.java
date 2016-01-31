@@ -1,6 +1,7 @@
 package edu.virginia.bookmark;
 
 
+import java.awt.Point;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -39,7 +40,8 @@ public class BookmarkServlet extends HttpServlet {
     private final String PASS_ON_CHALLENGE = "pass-on-challenge"; // Parameter: "id" (the student id).
     private final String GET_BOARD_CARD = "get-board-card";
     private final String SUBMIT_WINNING_CHAIN = "submit-winning-chain"; // Parameters: "id" (student id), "chain_xml" (xml of chain to submit).
-    
+    private final String GET_TEAM_POSITION = "get-team-position";
+    private final String UPDATE_TEAM_POSITION = "update-team-position";
             
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -265,8 +267,14 @@ public class BookmarkServlet extends HttpServlet {
 	        			);
         	}
         	
-            return new ResponseInfo(200, "Card Successfully Added");
-        
+        case(GET_TEAM_POSITION):
+        	int getTeamPosition_studentId = Integer.parseInt(params.get("id")[0]);
+			
+			String ret = getTeamPos(getTeamPosition_studentId);
+			
+			return new ResponseInfo(200, ret);
+			
+	
         case(GET_CLASS_ARGUMENT_CARD_DECK):
         	int getClassArgDeck_studentId = Integer.parseInt(params.get("id")[0]);
         	return GameManager.getClassArgumentCardXML(getClassArgDeck_studentId);
@@ -301,7 +309,15 @@ public class BookmarkServlet extends HttpServlet {
     		String submitWinningChain_ChainXML = params.get("chain_xml")[0];
     		Chain submit_WinningChain_Chain = Chain.generateChainFromXML(submitWinningChain_ChainXML);
     		return GameManager.submitWinningChain(submitWinningChain_StudentId, submit_WinningChain_Chain);
-        	
+    		
+    /*    case(UPDATE_TEAM_POSITION):
+        	int updateTeamPos_studentId = Integer.parseInt(params.get("id")[0]);
+        
+        	if(setTeamPos(updateTeamPos_studentId)) {
+        		return new ResponseInfo(200, updateTeamPos_ret);
+        	}
+        	return new ResponseInfo(500, "Failure Updating Team Pos: " + updateTeamPos_ret);
+        	*/
     	default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		
@@ -339,6 +355,50 @@ public class BookmarkServlet extends HttpServlet {
 		return xml;
     }
     
+    private String getTeamPos(int studentId) {
+    	
+    	Session session  = GameManager.getSessionWithId(studentId);
+    	SchoolClass sClass = session.schoolClass;
+    	
+    	int team = session.schoolClass.findTeamIdWithStudentId(studentId);
+    	Point pos = new Point();
+    	for(Team t : sClass.getTeams()) {
+    		if(t.id == team) {
+    			pos = t.getPosition();
+    			break;
+    		}
+    	}
+    	
+    	String xml = "<team_pos>";
+    	xml += "<x>";
+    	xml += Double.toString(pos.getX());
+    	xml += "</x>";
+    	xml += "<y>";
+    	xml += Double.toString(pos.getY());
+    	xml += "</y>";
+    	xml += "/<team_pos>";
+    	
+		return xml;
+    }
+    
+    /*private boolean setTeamPos(int studentId) {
+    	boolean success = false;
+    	Session session  = GameManager.getSessionWithId(studentId);
+    	SchoolClass sClass = session.schoolClass;
+    	
+    	int team = session.schoolClass.findTeamIdWithStudentId(studentId);
+    	Point pos = new Point();
+    	for(Team t : sClass.getTeams()) {
+    		if(t.id == team) {
+    			t.setPosition(pos);
+    			success = true;
+    			break;
+    		}
+    	}
+    	
+    	return success;
+    }
+    */
     private String getBoardCardXML(int teamId, int studentId) {
     	Session session  = GameManager.getSessionWithId(studentId);
     	SchoolClass sClass = session.schoolClass;
@@ -352,10 +412,7 @@ public class BookmarkServlet extends HttpServlet {
     			break;
     		}
     	}
-    	
-    	
-    	
-    	
+
     	Card card = board.returnCardAtPos(t.getPosition());
     	
     	String xml = "";
