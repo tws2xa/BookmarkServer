@@ -75,6 +75,7 @@ public class GameManager {
 		
 		boolean firstChain = (activeSession.getSessionState() != SessionState.Challenge);
 		if(firstChain) {
+			activeSession.clearChallengeChains();
 			activeSession.setSessionState(SessionState.Challenge);
 		}
 		

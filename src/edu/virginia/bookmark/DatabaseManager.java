@@ -45,7 +45,7 @@ import java.util.HashMap;
  * 		[int CardID unique][int PersonID][int ClassID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
  * 
  * Table: Chains
- * 		[int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]
+ * 		[int ChainID][int ArgumentCardID][char(120) ChainQuality][TimeStamp TIMESTAMP]
  * 
  * Table: ChainCards
  *		[int ChainID][int CardID][int CardX][int CardY][TimeStamp TIMESTAMP]
@@ -141,7 +141,11 @@ public class DatabaseManager {
 			 
 			// Table: Chains
 			// [int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]
-			statement.executeUpdate("CREATE TABLE Chains (ChainID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ArgumentCardID INT NOT NULL, TimeStamp TIMESTAMP);");
+			statement.executeUpdate("CREATE TABLE Chains "
+					+ "(ChainID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
+					+ "ArgumentCardID INT NOT NULL, "
+					+ "ChainQuality CHAR(120) NOT NULL, "
+					+ "TimeStamp TIMESTAMP);");
 			 
 			// ChainCards
 			// [int ChainID][int CardID][int CardX][int CardY][TimeStamp TIMESTAMP]
@@ -622,7 +626,7 @@ public class DatabaseManager {
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
 
-			// Table: Chains [int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]		 			
+			// Table: Chains [int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]
 			// Table: ChainCards [int ChainID][int CardID][int CardX][int CardY][TimeStamp TIMESTAMP]
 			// Table: ChainLinks [int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
 			
@@ -633,10 +637,12 @@ public class DatabaseManager {
 			// Table: Chains [int ChainID][int ArgumentCardID][TimeStamp TIMESTAMP]		 	
 			int argumentCardID = chain.getArgumentCard().id;
 			int chainId = getChainIdForArgumentCard(argumentCardID);
+			String chainQuality = chain.quality.name();
 			
 			if(chainId == -1) {
 				// No Match Found: Create New
-				String intoChainsQuery = "INSERT INTO Chains (ArgumentCardID) VALUES (" + argumentCardID + ");";
+				String intoChainsQuery = "INSERT INTO Chains (ArgumentCardID, ChainQuality) VALUES (" + argumentCardID + ", '" + chainQuality + "');";
+				System.out.println("Query: " + intoChainsQuery);
 				statement.executeUpdate(intoChainsQuery);
 				
 				// Get the added chain's id.
@@ -644,7 +650,7 @@ public class DatabaseManager {
 			} else {
 				// Match Found: Update
 				// (This shouldn't actually be necessary, but it updates the time stamp as well, which could be helpful.
-				String updateChainsQuery = ("UPDATE Chains SET ArgumentCardID=" + argumentCardID + " WHERE ChainId=" + chainId + ";");
+				String updateChainsQuery = ("UPDATE Chains SET ArgumentCardID=" + argumentCardID + ", ChainQuality='" + chainQuality + "' WHERE ChainId=" + chainId + ";");
 				statement.executeUpdate(updateChainsQuery);	
 			}
 
@@ -681,7 +687,7 @@ public class DatabaseManager {
 			chainLinksInsertQuery = chainLinksInsertQuery.substring(0, chainLinksInsertQuery.length() - 1) + ";";
 			statement.executeUpdate(chainLinksInsertQuery);
 		} catch(SQLException ex) {
-			System.out.println("SQL Exception in Add Card for Student: " + ex.getMessage());
+			System.out.println("SQL Exception in Add Chain: " + ex.getMessage());
 		} finally {
 			try {
 				if(statement != null) {
@@ -691,7 +697,7 @@ public class DatabaseManager {
 					connection.close();
 				}
 			} catch (SQLException ex) {
-				System.out.println("SQL Exception in Add Card for Student Finally: " + ex.getMessage());
+				System.out.println("SQL Exception in Add Chain Finally: " + ex.getMessage());
 			}
 		}
 	}

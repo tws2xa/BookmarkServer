@@ -253,6 +253,14 @@ public class Session {
 	}
 	
 	/**
+	 * Reset the challenge state
+	 */
+	public void clearChallengeChains() {
+		this.challengeChains.clear();
+		this.challengeSubmissionStatus.clear();
+	}
+	
+	/**
 	 * Selects the chain with the given id as the challenge winner.
 	 */
 	public void selectChallengeWinner(int chainAccessor, Chain chain) {
