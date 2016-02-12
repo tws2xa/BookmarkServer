@@ -24,6 +24,7 @@ public class Session {
 	ArrayList<Integer> upToDateIds;
 	
 	int activeTurnTeamIndex = -1;
+	ArrayList<Integer> teamChallengeOrder; // List of Team IDs in order of chain submissions.
 	HashMap<Integer, Chain> challengeChains; //<Team ID, Chain>
 	HashMap<Integer, Boolean> challengeSubmissionStatus; // <Team ID, true/false (has responded/passed for challenge).>
 	
@@ -48,6 +49,7 @@ public class Session {
 		initializeTeamPositions();
 		System.out.println("Clearing Up To Date Status.");
 		upToDateIds = new ArrayList<Integer>();
+		teamChallengeOrder = new ArrayList<Integer>();
 		challengeChains = new HashMap<Integer, Chain>();
 		challengeSubmissionStatus = new HashMap<Integer, Boolean>();
 		this.setSessionState(SessionState.PlayerTurn);
@@ -169,7 +171,7 @@ public class Session {
 			info += ("<turn_team_name>" +  activeTeamName + "</turn_team_name>");
 			info += ("<your_turn>" + (schoolClass.findTeamIdWithStudentId(requestID) == activeTeamId) + "</your_turn>");
 			info += "<challenge_chains>";
-			for(int teamID : challengeChains.keySet()) {
+			for(int teamID : teamChallengeOrder) {
 				info += "<chain_info>";
 				info += "<team_id>" + teamID + "</team_id>";
 				info += challengeChains.get(teamID).generateChainXML();
@@ -255,6 +257,7 @@ public class Session {
 			}
 		}
 		int teamId = schoolClass.findTeamIdWithStudentId(studentId);
+		this.teamChallengeOrder.add(teamId);
 		this.challengeChains.put(teamId, chain);
 		registerTeamChallengeResponse(teamId);
 		return teamId;
@@ -264,6 +267,7 @@ public class Session {
 	 * Reset the challenge state
 	 */
 	public void clearChallengeChains() {
+		this.teamChallengeOrder.clear();
 		this.challengeChains.clear();
 		this.challengeSubmissionStatus.clear();
 	}

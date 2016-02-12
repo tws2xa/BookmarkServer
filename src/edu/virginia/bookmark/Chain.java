@@ -33,7 +33,6 @@ public class Chain {
 	ArrayList<int[]> links;
 	ChainQuality quality;
 	
-	
 	public Chain(HashMap<Card, Point> cards, ArrayList<int[]> links) {
 		this(cards, links, ChainQuality.Unset);
 	}
