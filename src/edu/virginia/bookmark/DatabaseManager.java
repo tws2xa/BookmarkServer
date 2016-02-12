@@ -824,14 +824,16 @@ public class DatabaseManager {
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
 				
-
-			// Test Class
+			// ------------------------------------------------------------------------
+			// ----------------------------- Test Class 1 -----------------------------
+			// ------------------------------------------------------------------------
+			
 			// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
-			statement.executeUpdate("INSERT INTO Classes (ClassName, ClassInfo, TeacherID, CurrentAssignmentID) VALUES ('Test Class', 'This test class has Doctors in it!', 1, 0)");
+			statement.executeUpdate("INSERT INTO Classes (ClassName, ClassInfo, TeacherID, CurrentAssignmentID) VALUES ('Whovians', 'This test class has Doctors in it!', 1, 0)");
 			
 			// Test Teacher
 			// People: [int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
-			statement.executeUpdate("INSERT INTO People (UserName, Password, PersonName) VALUES ('a', 'a', 'Teacher')");
+			statement.executeUpdate("INSERT INTO People (UserName, Password, PersonName) VALUES ('a', 'a', 'Doctor Who Teacher')");
 			
 			// Test Students
 			DatabaseManager.addStudent(statement, "Doc12", "Doc12", "Peter Capaldi", 1);
@@ -883,6 +885,69 @@ public class DatabaseManager {
 			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (3, 6)");
 			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (3, 7)");
 			
+
+			// ------------------------------------------------------------------------
+			// ----------------------------- Test Class 2 -----------------------------
+			// ------------------------------------------------------------------------
+			
+			// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO Classes (ClassName, ClassInfo, TeacherID, CurrentAssignmentID) VALUES ("
+					+ "'Whatever the Avatar World is Called', "
+					+ "'This test class has avatar characters in it!', "
+					+ "8, 0)");
+			
+			// Test Teacher
+			// People: [int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO People (UserName, Password, PersonName) VALUES ('b', 'b', 'Avatar Teacher')");
+			
+			// Test Students
+			DatabaseManager.addStudent(statement, "Aang", "a", "Aang", 2); // 9
+			DatabaseManager.addStudent(statement, "Appa", "a", "Appa", 2); // 10
+			DatabaseManager.addStudent(statement, "Katara", "k", "Katara", 2); // 11
+			DatabaseManager.addStudent(statement, "Sokka", "s", "Sokka", 2); // 12
+			DatabaseManager.addStudent(statement, "Toph", "t", "Toph", 2); // 13
+			DatabaseManager.addStudent(statement, "Bumi", "b", "Bumi", 2); // 14
+			DatabaseManager.addStudent(statement, "Zuko", "z", "Zuko", 2); // 15
+			DatabaseManager.addStudent(statement, "Uncle Iroh", "ui", "Uncle Iroh", 2); // 16
+			
+			
+			
+			// Cards
+			DatabaseManager.addCard(connection, 9, 2, 0, CardType.Argument.name(),  "I am Aang. Balance and peace are the good stuff.", -1, -1);
+			DatabaseManager.addCard(connection, 10, 2, 0, CardType.Tone.name(), "I am Appa. This passage portrays the effervescent essence of extraordinary exuberance.", 100, -1);
+			DatabaseManager.addCard(connection, 11, 2, 0, CardType.Imagery.name() , "I am Katara. There is a beautiful stream, flowing like the hope in my heart.", 2, -1);
+			DatabaseManager.addCard(connection, 12, 2, 0, CardType.Diction.name() , "I am Sokka! I found words!", 7, 8);
+			DatabaseManager.addCard(connection, 13, 2, 0, CardType.Diction.name() , "I am Toph. I found better words than Sokka.", 6, 7);
+			DatabaseManager.addCard(connection, 14, 2, 0, CardType.Theme.name() , "I'm Bumi! There's a theme of changing perspective.", -1, -1);
+			DatabaseManager.addCard(connection, 15, 2, 0, CardType.Tone.name() , "I am Zuko. The tone is angst.", -1, -1);
+			DatabaseManager.addCard(connection, 16, 2, 0, CardType.Other.name() , "I am Uncle Iroh. Humility is key.", 9, -1);
+			DatabaseManager.addCard(connection, 9, 2, 0, CardType.Theme.name() , "I am Aang. The theme is forgiveness.", -1, -1);
+			DatabaseManager.addCard(connection, 10, 2, 0, CardType.Argument.name() , "I am Appa. The true meaning of this work lies not in its wearisome words, but in its deeper sense of abstractional injustice.", -1, -1);
+			DatabaseManager.addCard(connection, 11, 2, 0, CardType.Other.name() , "I am Katara. I have found Hope.", -1, -1);
+			DatabaseManager.addCard(connection, 12, 2, 0, CardType.Imagery.name() , "I am Sokka! This book has pictures!", 8, 10);
+			DatabaseManager.addCard(connection, 13, 2, 0, CardType.Plot_Point.name(),  "I am Toph. Some things happened. I didn't care.", -1, -1);
+			DatabaseManager.addCard(connection, 14, 2, 0, CardType.Argument.name(), "I am Bumi! It was all a dream!", -1, -1);
+			DatabaseManager.addCard(connection, 15, 2, 0, CardType.Plot_Point.name() , "I am Zuko. I lost my honor. I will regain my honor. My father will be proud.", 2, -1);
+			DatabaseManager.addCard(connection, 16, 2, 0, CardType.Plot_Point.name() , "I am Uncle Iroh. They had a nice cup of jasmine tea.", 7, 8);
+
+
+			// Test Teams
+			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Air Nation', 2)"); // 4
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Water Nation', 2)"); // 5
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Earth Nation', 2)"); // 6
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Fire Nation', 2)"); // 7
+			
+			// Test Team Links
+			// TeamStudents: [int TeamID][int StudentID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (4, 9)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (4, 10)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (5, 11)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (5, 12)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (6, 13)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (6, 14)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (7, 15)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (7, 16)");
 			
 		} catch(SQLException ex) {
 			System.out.println("SQL Exception in Create Test Content: " + ex.getMessage());
@@ -899,7 +964,6 @@ public class DatabaseManager {
 			}
 		}
 	}
-
 
 	// --------------------------------------------------------------------------
 	// ----------------------------- HELPER METHODS -----------------------------
