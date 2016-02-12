@@ -115,7 +115,15 @@ public class Session {
 		return info;
 	}
 	
-	private Team getActiveTeam() {
+	/**
+	 * Returns true if the given id is the id of the active team.
+	 * Returns false otherwise.
+	 */
+	public boolean isActiveTeam(int teamId) {
+		return (teamId == getActiveTeam().id);
+	}
+	
+	public Team getActiveTeam() {
 		if(this.activeTurnTeamIndex < 0) {
 			return null;
 		}

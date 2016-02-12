@@ -392,23 +392,20 @@ public class BookmarkServlet extends HttpServlet {
     }
     
     private boolean setTeamPos(int studentId, int x, int y) {
-    	boolean success = false;
     	Session session  = GameManager.getSessionWithId(studentId);
-    	SchoolClass sClass = session.schoolClass;
     	
     	int team = session.schoolClass.findTeamIdWithStudentId(studentId);
-    	Point pos = new Point(x, y);
-    	for(Team t : sClass.getTeams()) {
-    		if(t.id == team) {
-    			t.setPosition(pos);
-    			success = true;
-    			session.advanceTurn();
-    			session.clearUpToDateStatus();
-    			break;
-    		}
+    	if(!session.isActiveTeam(team)) {
+    		// Not this team's turn. Do nothing. Return.
+    		System.out.println("Team " + team + " is Trying to Change Positions On Team " + session.getActiveTeam().id + "'s Turn.");
+    		return true;
+    	} else {
+	    	Point pos = new Point(x, y);
+	    	session.getActiveTeam().setPosition(pos);
+	    	session.advanceTurn();
+	    	session.clearUpToDateStatus();
+	    	return true;
     	}
-    	
-    	return success;
     }
     
     private String getBoardCardXML(int teamId, int studentId) {

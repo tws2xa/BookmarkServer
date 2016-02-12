@@ -95,6 +95,12 @@ public class GameManager {
 			return new ResponseInfo(400, "Cannot find session containing id " + id);
 		}
 		
+		if(!activeSession.getSessionState().equals(SessionState.Challenge)) {
+			return new ResponseInfo(200, "State Mismatch. Expected Challenge, Found " +
+					activeSession.getSessionState().name() +
+					". No modification occured.");
+		}
+		
 		DatabaseManager.addChainToDatabase(chain);
 		activeSession.selectChallengeWinner(chainAccessor, chain);
 		activeSession.advanceTurn();
