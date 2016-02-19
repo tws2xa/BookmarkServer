@@ -23,6 +23,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String DATABASE_TEST = "database-test";
     private final String BEGIN_SESSION = "begin-session";
     private final String JOIN_SESSION = "join-session";
+    private final String CHECK_SESSION = "check-session";
     private final String LOGIN = "login";
     private final String SHOW_ERROR = "show-error";
     private final String GET_STUDENT_INFO = "get-student-info";
@@ -55,6 +56,7 @@ public class BookmarkServlet extends HttpServlet {
 	        response.addHeader("Access-Control-Allow-Origin", "http://localhost");
 	        
 	        // Allow gdrg.cs.viginia.edu communication
+	        //
 	        // response.addHeader("Access-Control-Allow-Origin", "http://gdrg.cs.virginia.edu");
 	        
 	        // Must designate an action
@@ -147,7 +149,10 @@ public class BookmarkServlet extends HttpServlet {
     		System.out.println("Joining Session");
     		int joinSessionId = Integer.parseInt(params.get("id")[0]);
     		return GameManager.joinSession(joinSessionId);
-    		
+    	case(CHECK_SESSION):
+    		int checkSession_Id = Integer.parseInt(params.get("id")[0]);
+    		boolean hasSession = GameManager.checkSession(checkSession_Id);
+    		return new ResponseInfo(200, hasSession + "");
     	case(LOGIN):
     		String username = params.get("username")[0];
     		String password = params.get("password")[0];

@@ -63,6 +63,14 @@ public class GameManager {
 		return new ResponseInfo(status, message);
 	}
 	
+	public static boolean checkSession(int id) {
+		Session sessionWithId = getSessionWithId(id);
+		if(sessionWithId != null) {
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Handle Chain Submission
 	 */
