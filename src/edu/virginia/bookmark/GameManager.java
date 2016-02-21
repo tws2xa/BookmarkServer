@@ -1,5 +1,6 @@
 package edu.virginia.bookmark;
 
+import java.awt.List;
 import java.util.ArrayList;
 
 import edu.virginia.bookmark.Session.SessionState;
@@ -156,6 +157,20 @@ public class GameManager {
 	}
 
 	/**
+	 * Returns a ResponseInfo with student list xml for the class with the given teacher id.
+	 */
+	public static ResponseInfo getStudentList(int teacherId) {
+		ArrayList<String> studentNames = DatabaseManager.getClassStudentNames(teacherId);
+		String xml = "<student_list>";
+		for(String name : studentNames) {
+			xml += "<student_name>" + name + "</student_name>";
+		}
+		xml += "</student_list>";
+		System.out.println("Returning Student List: " + xml);
+		return new ResponseInfo(200, xml);
+	}
+	
+	/**
 	 * Checks if the user with the given id needs to update the board view.
 	 */
 	public static boolean checkNeedUpdate(int id) {
@@ -222,4 +237,5 @@ public class GameManager {
 	public static Card getCardWithId(int id) {
 		return new Card(id);
 	}
+
 }

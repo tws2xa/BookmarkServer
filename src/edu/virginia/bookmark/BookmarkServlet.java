@@ -43,6 +43,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String SUBMIT_WINNING_CHAIN = "submit-winning-chain"; // Parameters: "id" (student id), "chain_accessor" (id to access the chain), "chain_xml" (xml of chain to submit).
     private final String GET_TEAM_POSITION = "get-team-position";
     private final String UPDATE_TEAM_POSITION = "update-team-position";
+    private final String GET_CLASS_STUDENTS = "get-class-students"; // Parameters: "id" (teacher id)
         
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -330,9 +331,14 @@ public class BookmarkServlet extends HttpServlet {
         		return new ResponseInfo(200, "Success");
         	}
         	return new ResponseInfo(500, "Failure Updating Team Pos: " + Integer.toString(updateTeamPos_studentId));
-        	
-  
-    	default:
+       case(GET_CLASS_STUDENTS):
+    	   int getClassStudents_id = Integer.parseInt(params.get("id")[0]);
+       	   if (!DatabaseManager.verifyTeacher(getClassStudents_id)) {
+       		   return new ResponseInfo(400, "No Class Found With Teacher Id: " + getClassStudents_id);
+       	   }
+       	   return GameManager.getStudentList(getClassStudents_id);
+       	   
+       default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		
     	}

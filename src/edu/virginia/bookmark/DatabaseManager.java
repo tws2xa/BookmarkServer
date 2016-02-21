@@ -241,6 +241,68 @@ public class DatabaseManager {
 		return assignmentID;
 	}
 	
+
+	/**
+	 * Returns a list containing the string name of every student in the class.
+	 * @param teacherId Id of the desired class' teacher
+	 */
+	public static ArrayList<String> getClassStudentNames(int teacherId) {
+		ArrayList<String> studentNames = new ArrayList<String>();	
+		
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+			
+			/*
+			 * Table: People
+			 * 		[int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
+			 *
+			 * Table: Classes
+			 * 		[int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
+			 * 
+			 * Table: ClassStudents
+			 * 		[int ClassID][int StudentID][TimeStamp TIMESTAMP]
+			*/
+			
+			String query = "SELECT People.PersonName "
+					+ "FROM People, Classes, ClassStudents "
+					+ "WHERE People.PersonID=ClassStudents.StudentID AND ClassStudents.ClassID=Classes.ClassID AND Classes.TeacherID=" + teacherId + ";";
+			ResultSet results = statement.executeQuery(query);
+			while(results.next()) {
+				studentNames.add(results.getString("PersonName"));
+			}
+			
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Load Class Student Names: " + ex.getMessage());
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Load Class Student Names: " + ex.getMessage());
+			}
+		}
+		
+		return studentNames;
+	}
+		
+	
 	// --------------------------------------------------------------------------
 	// ----------------------------- GET CARD INFO ------------------------------
 	// --------------------------------------------------------------------------
@@ -1118,7 +1180,7 @@ public class DatabaseManager {
 		prepStmt.executeUpdate();
 		
 	}
-		
+	
 	/*******
 	 * METHOD WRAPPER
 	 	MysqlDataSource datasource = null;
