@@ -33,7 +33,7 @@ import java.util.HashMap;
  * 		[int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
  * 
  * Table: Teams
- * 		[int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
+ * 		[int TeamID unique][char(120) TeamName][int ClassID][int AssignmentID][TimeStamp TIMESTAMP]
  * 
  * Table: ClassStudents
  * 		[int ClassID][int StudentID][TimeStamp TIMESTAMP]
@@ -103,7 +103,7 @@ public class DatabaseManager {
 					+ "TimeStamp TIMESTAMP);");
 				
 			// Classes
-			// [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][TimeStamp TIMESTAMP]
+			// [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
 			statement.executeUpdate("CREATE TABLE Classes "
 					+ "(ClassID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
 					+ "ClassName CHAR(120) NOT NULL, "
@@ -113,11 +113,12 @@ public class DatabaseManager {
 					+ "TimeStamp TIMESTAMP);");
 			
 			// Teams
-			// [int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
+			// [int TeamID unique][char(120) TeamName][int ClassID][int AssignmentID][TimeStamp TIMESTAMP]
 			statement.executeUpdate("CREATE TABLE Teams "
 					+ "(TeamID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
 					+ "TeamName CHAR(120) NOT NULL, "
 					+ "ClassID INT NOT NULL, "
+					+ "AssignmentID INT NOT NULL, "
 					+ "TimeStamp TIMESTAMP);");
 			  
 			// ClassStudents
@@ -203,10 +204,15 @@ public class DatabaseManager {
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
 				
-			
-			ResultSet results = statement.executeQuery("SELECT TeamID FROM Teams WHERE ClassID = " + classId + ";");
+			String query = "SELECT Teams.TeamID FROM Teams, Classes "
+					+ "WHERE (Teams.ClassID=" + classId + " "
+					+ "AND Classes.ClassID=" + classId + " "
+					+ "AND Teams.AssignmentID=Classes.CurrentAssignmentID);";
+			ResultSet results = statement.executeQuery(query);
 			while(results.next()) {
-				teamIds.add(results.getInt("TeamID"));
+				int id = results.getInt("TeamID");
+				System.out.println("Team ID: " + id);
+				teamIds.add(id);
 			}
 			
 		} catch(SQLException ex) {
@@ -522,8 +528,8 @@ public class DatabaseManager {
 	public static int getTeamContainingStudent(int id) {
 
 	String query = "SELECT Teams.TeamID AS LookupID "
-			+ "FROM Teams, TeamStudents "
-			+ "WHERE (Teams.TeamID=TeamStudents.TeamID AND TeamStudents.StudentID=" + id + ");";
+			+ "FROM Teams, TeamStudents, Classes "
+			+ "WHERE (Teams.TeamID=TeamStudents.TeamID AND Teams.AssignmentID=Classes.CurrentAssignmentID AND TeamStudents.StudentID=" + id + ");";
 	int teamId = DatabaseManager.getIntFromDB("GET TEAM CONTAINING STUDENT", query, "LookupID", -1);
 
 	return teamId;
@@ -933,10 +939,10 @@ public class DatabaseManager {
 
 
 			// Test Teams
-			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
-			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Daleks', 1)");
-			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Cybermen', 1)");
-			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Ood', 1)");
+			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][int AssignmentID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Daleks', 1, 0)");
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Cybermen', 1, 0)");
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Ood', 1, 0)");
 			
 			// Test Team Links
 			// TeamStudents: [int TeamID][int StudentID][TimeStamp TIMESTAMP]
@@ -994,11 +1000,11 @@ public class DatabaseManager {
 
 
 			// Test Teams
-			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][TimeStamp TIMESTAMP]
-			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Air Nation', 2)"); // 4
-			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Water Nation', 2)"); // 5
-			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Earth Nation', 2)"); // 6
-			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID) VALUES ('Fire Nation', 2)"); // 7
+			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][int AssignmentID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Air Nation', 2, 0)"); // 4
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Water Nation', 2, 0)"); // 5
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Earth Nation', 2, 0)"); // 6
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Fire Nation', 2, 0)"); // 7
 			
 			// Test Team Links
 			// TeamStudents: [int TeamID][int StudentID][TimeStamp TIMESTAMP]
