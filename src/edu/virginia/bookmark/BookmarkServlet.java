@@ -44,6 +44,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String GET_TEAM_POSITION = "get-team-position";
     private final String UPDATE_TEAM_POSITION = "update-team-position";
     private final String GET_CLASS_STUDENTS = "get-class-students"; // Parameters: "id" (teacher id)
+    private final String LAUNCH_NEW_ASSIGNMENT = "launch-new-assignment"; // Parameters: "id" (teacher id), "assignment_info" (assignment xml)
         
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -337,6 +338,10 @@ public class BookmarkServlet extends HttpServlet {
        		   return new ResponseInfo(400, "No Class Found With Teacher Id: " + getClassStudents_id);
        	   }
        	   return GameManager.getStudentList(getClassStudents_id);
+       case(LAUNCH_NEW_ASSIGNMENT):
+    	   int launchNewAssignment_TeacherId = Integer.parseInt(params.get("id")[0]);
+       	   String launchNewAssignment_AssignmentXML = params.get("assignment_info")[0].trim();
+       	   return GameManager.launchNewAssignment(launchNewAssignment_TeacherId, launchNewAssignment_AssignmentXML);
        	   
        default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);

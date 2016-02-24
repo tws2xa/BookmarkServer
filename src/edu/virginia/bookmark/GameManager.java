@@ -1,7 +1,21 @@
 package edu.virginia.bookmark;
 
 import java.awt.List;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import edu.virginia.bookmark.Session.SessionState;
 
@@ -154,6 +168,111 @@ public class GameManager {
     	xml += "</deck>";
     	
     	return new ResponseInfo(200, xml);
+	}
+	
+	public static ResponseInfo launchNewAssignment(int teacherId, String assignmentXML) {
+		String assignmentName = "";
+		String assignmentInfo = "";
+		String deckType = "";
+		int prevAssignment = -1;
+		
+		ArrayList<Integer> classIdList = DatabaseManager.loadTeacherClassIds(teacherId);
+		int classId = -1;
+		if(classIdList == null || classIdList.size() <= 0) {
+			return new ResponseInfo(400, "No Class Found for the Given Teacher ID: " + teacherId);
+		} else {
+			classId = classIdList.get(0);
+		}
+		
+		try {
+			DocumentBuilderFactory docBuildFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = docBuildFactory.newDocumentBuilder();
+			InputSource inputSource = new InputSource();
+			inputSource.setCharacterStream(new StringReader(assignmentXML));
+			Document doc;
+			doc = builder.parse(inputSource);
+			
+			NodeList allAssignments = doc.getElementsByTagName("assignment");
+			if(allAssignments.getLength() <= 0) {
+				System.out.println("Error: Parsing Assignment Data with no <assignment> tag.");
+				return null;
+			}
+			
+			Element assignmentData = (Element) allAssignments.item(0);
+			assignmentName = XMLHelper.getTextValue(assignmentData, "assignment_name");
+			assignmentInfo = XMLHelper.getTextValue(assignmentData, "assignment_info");
+			deckType = XMLHelper.getTextValue(assignmentData, "assignment_deck_type");
+			prevAssignment = DatabaseManager.getCurrentAssignmentIDForClass(classId);
+			
+			GameManager.CreateNewTeamsFromXML(classId, (Element) assignmentData.getElementsByTagName("teams").item(0));
+			
+		} catch (SAXException e) {
+			System.out.println("SAXException Parsing Card XML: " + e.getMessage());
+			e.printStackTrace();
+			return new ResponseInfo(400, "SAXException Parsing Card XML: " + e.getMessage());
+		} catch (IOException e) {
+			System.out.println("IOException Parsing Card XML: " + e.getMessage());
+			e.printStackTrace();
+			return new ResponseInfo(400, "IOException Parsing Card XML: " + e.getMessage());
+		} catch (ParserConfigurationException e) {
+			System.out.println("ParserConfigurationException Parsing Card XML: " + e.getMessage());
+			e.printStackTrace();
+			return new ResponseInfo(400, "ParserConfigurationException Parsing Card XML: " + e.getMessage());
+		}
+
+		boolean success = DatabaseManager.submitNewAssignment(teacherId, assignmentName, assignmentInfo, deckType, prevAssignment);
+		
+		if(success) {
+			return new ResponseInfo(200, "Success");
+		} else {
+			return new ResponseInfo(400, "Failure");
+		}
+	}
+	
+	/**
+	 * Creates the new teams from XML
+	 */
+	private static void CreateNewTeamsFromXML(int classId, Element allTeamsData) {
+		/*
+		 * <team>
+		 * 		<team_name></team_name>
+		 * 		<team_students>
+		 * 			<student_name></student_name>
+		 * 			...
+		 * 		</team_students>
+		 * </team>
+		 * <team>
+		 * 		...
+		 * </team>
+		 * ...
+		 */
+		
+		HashMap<String, ArrayList<String>> teamsInfo = new HashMap<String, ArrayList<String>>(); // [Team Name: Student Name List]
+		NodeList teamDataList = allTeamsData.getElementsByTagName("team");
+		for(int teamDataCounter=0; teamDataCounter<teamDataList.getLength(); teamDataCounter++) {
+			// Team Info
+			Element teamData = (Element) teamDataList.item(teamDataCounter);
+			String teamName = XMLHelper.getTextValue(teamData, "team_name");
+			
+			// Students
+			ArrayList<String> students = new ArrayList<String>();
+			Element allStudentsData = (Element) teamData.getElementsByTagName("team_students").item(0);
+			NodeList studentNameList = allStudentsData.getElementsByTagName("student_name");
+			for(int studentNameCounter = 0; studentNameCounter < studentNameList.getLength(); studentNameCounter++) {
+				String studentName = studentNameList.item(studentNameCounter).getFirstChild().getNodeValue();
+				students.add(studentName);
+			}
+			teamsInfo.put(teamName, students);
+		}
+		
+		System.out.println("Creating Teams: ");
+		for(String teamName : teamsInfo.keySet()) {
+			System.out.println("\t" +  teamName);
+			for(String studentName : teamsInfo.get(teamName)) {
+				System.out.println("\t\t" + studentName);
+			}
+		}
+		
 	}
 
 	/**

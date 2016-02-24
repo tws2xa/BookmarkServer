@@ -52,6 +52,9 @@ import java.util.HashMap;
  * 
  * Table: ChainLinks
  * 		[int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
+ * 
+ * Table: Assignments
+ * 		[int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
  *
  ******/
 
@@ -91,6 +94,7 @@ public class DatabaseManager {
 			statement.executeUpdate("DROP TABLE IF EXISTS ChainCards");
 			statement.executeUpdate("DROP TABLE IF EXISTS ChainLinks");
 			statement.executeUpdate("DROP TABLE IF EXISTS CardLinks");
+			statement.executeUpdate("DROP TABLE IF EXISTS Assignments");
 			
 			// People
 			// [int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
@@ -157,6 +161,18 @@ public class DatabaseManager {
 			// ChainLinks
 			// [int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
 			statement.executeUpdate("CREATE TABLE ChainLinks (ChainID INT NOT NULL, Card1ID INT NOT NULL, Card2ID INT NOT NULL, TimeStamp TIMESTAMP);");
+			
+
+			 // Assignments
+			 // [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
+			statement.executeUpdate("CREATE TABLE Assignments ("
+					+ "AssignmentID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
+					+ "AssignmentName CHAR(120) NOT NULL, "
+					+ "AssignmentInfo TEXT, "
+					+ "DeckType CHAR(120) NOT NULL, "
+					+ "PrevAssignmentID INT NOT NULL,"
+					+ "TimeStamp TIMESTAMP);");
+			
 			
 			// Create the test class and data
 			DatabaseManager.createTestContent();
@@ -575,7 +591,8 @@ public class DatabaseManager {
 			
 			ResultSet results = statement.executeQuery("SELECT ClassID FROM Classes WHERE TeacherID = " + teacherId + ";");
 			while(results.next()) {
-				classIds.add(results.getInt("ClassID"));
+				int classId = results.getInt("ClassID");
+				classIds.add(classId);
 			}
 			
 		} catch(SQLException ex) {
@@ -870,6 +887,63 @@ public class DatabaseManager {
 			}
 		}
 	}
+
+	public static boolean submitNewAssignment(int teacherID, String assignmentName, String assignmentText, String deckType, int prevAssignment) {
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+		
+		boolean success = true;
+		
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+
+			// Table: Assignments
+			// [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
+			System.out.println("Creating Assignment With: ");
+			System.out.println("\tTeacher ID: " + teacherID);
+			System.out.println("\tAssignment Name: " + assignmentName);
+			System.out.println("\tAssignment Text: " + assignmentText);
+			System.out.println("\tDeck Type: " + deckType);
+			System.out.println("\tPrevious Assignment: " + prevAssignment);
+			
+			
+			/*****
+			 *  Make sure to use a query builder to prevent SQL injections.
+			 *  The teacher will almost certainly want to use single or double quotes at some point.
+			 *  See how the new card submission works.
+			 *****/
+			
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Launch Assignment: " + ex.getMessage());
+			success = false;
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+					success = false;
+				}
+				if(connection != null) {
+					connection.close();
+					success = false;
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Launch Assignment: " + ex.getMessage());
+				success = false;
+			}
+		}
+		
+		return success;
+	}
 	
 	// --------------------------------------------------------------------------
 	// ---------------------------- TESTING METHODS -----------------------------
@@ -1032,7 +1106,7 @@ public class DatabaseManager {
 			}
 		}
 	}
-
+	
 	// --------------------------------------------------------------------------
 	// ----------------------------- HELPER METHODS -----------------------------
 	// --------------------------------------------------------------------------
