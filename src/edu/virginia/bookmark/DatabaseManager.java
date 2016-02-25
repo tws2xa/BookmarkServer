@@ -482,6 +482,15 @@ public class DatabaseManager {
 		String query = "SELECT PersonName FROM People WHERE (PersonId=" + personId + ");";
 		return getStringFromDB("Get_Person_Name", query, "PersonName", "Unnamed Person #" + personId);
 	}
+	
+	/**
+	 * Get the id of the person with the given name.
+	 */
+	public static int getPersonIDFromName(String personName) {
+		System.out.println("CAUTOION: ASSUMING ALL STUDENTS HAVE UNIQUE NAMES");
+		String query = "SELECT PersonId FROM People WHERE (PersonName='" + personName + "');";
+		return getIntFromDB("Get_Person_ID_From_Name", query, "PersonID", -1);
+	}
 		
 	// --------------------------------------------------------------------------
 	// ---------------------------- GET STUDENT INFO ----------------------------
@@ -887,8 +896,8 @@ public class DatabaseManager {
 			}
 		}
 	}
-
-	public static boolean submitNewAssignment(int teacherID, String assignmentName, String assignmentText, String deckType, int prevAssignment) {
+	
+	public static void setClassAssignment(int classID, int assignmentID) {
 		MysqlDataSource datasource = null;
 		Connection connection = null;
 		Statement statement = null;
@@ -896,9 +905,7 @@ public class DatabaseManager {
 		String url="jdbc:mysql://localhost:3306/bookmarkdb";
 		String user="Bookmark";
 		String password="jetbookmark";
-		
-		boolean success = true;
-		
+			
 		try {
 			datasource = new MysqlDataSource();
 			datasource.setUrl(url);
@@ -906,39 +913,168 @@ public class DatabaseManager {
 			datasource.setPassword(password);
 			connection = datasource.getConnection();
 			statement = connection.createStatement();
-
-			// Table: Assignments
-			// [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
-			System.out.println("Creating Assignment With: ");
-			System.out.println("\tTeacher ID: " + teacherID);
-			System.out.println("\tAssignment Name: " + assignmentName);
-			System.out.println("\tAssignment Text: " + assignmentText);
-			System.out.println("\tDeck Type: " + deckType);
-			System.out.println("\tPrevious Assignment: " + prevAssignment);
 			
+			 // Table: Classes
+			 // [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
+			String query = "UPDATE Classes SET CurrentAssignmentID=" + assignmentID + " WHERE ClassID=" + classID;
+			statement.executeUpdate(query);
 			
-			/*****
-			 *  Make sure to use a query builder to prevent SQL injections.
-			 *  The teacher will almost certainly want to use single or double quotes at some point.
-			 *  See how the new card submission works.
-			 *****/
 			
 		} catch(SQLException ex) {
-			System.out.println("SQL Exception in Launch Assignment: " + ex.getMessage());
-			success = false;
+			System.out.println("SQL Exception in Set Class Assignment: " + ex.getMessage());
 		} finally {
 			try {
 				if(statement != null) {
 					statement.close();
-					success = false;
 				}
 				if(connection != null) {
 					connection.close();
-					success = false;
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Set Class Assignment Finally: " + ex.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * Puts a new assignment into the assignment table
+	 * Returns the assignment's id
+	 */
+	public static int addNewAssignment(String assignmentName, String assignmentInfo, String deckType, int prevAssignment) {
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		PreparedStatement prepStmt = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+		
+		int assignmentId = -1;
+		
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+
+			// Table: Assignments
+			// [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
+			
+			/*
+			System.out.println("Creating Assignment With: ");
+			System.out.println("\tAssignment Name: " + assignmentName);
+			System.out.println("\tAssignment Text: " + assignmentInfo);
+			System.out.println("\tDeck Type: " + deckType);
+			System.out.println("\tPrevious Assignment: " + prevAssignment);
+			*/
+			
+			// Insert into the assignment table
+			String prepQuery = "INSERT INTO Assignments (AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES (?, ?, ?, ?);";
+
+			prepStmt = connection.prepareStatement(prepQuery);
+			
+			prepStmt.setString(1, assignmentName);
+			prepStmt.setString(2, assignmentInfo);
+			prepStmt.setString(3, deckType);
+			prepStmt.setInt(4, prevAssignment);
+			
+			prepStmt.executeUpdate();
+			
+			String assignmentIdQuery = "SELECT AssignmentID FROM Assignments WHERE (AssignmentName=? AND AssignmentInfo=? AND DeckType=? AND PrevAssignmentID=?);";
+			
+			prepStmt.close();
+			prepStmt = connection.prepareStatement(assignmentIdQuery);
+			prepStmt.setString(1, assignmentName);
+			prepStmt.setString(2, assignmentInfo);
+			prepStmt.setString(3, deckType);
+			prepStmt.setInt(4, prevAssignment);
+			
+			ResultSet results = prepStmt.executeQuery();
+			while(results.next()) { // while so we grab the most recent, in case of duplicates.
+				// Found Match
+				assignmentId = results.getInt("AssignmentID");
+			}
+			
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Launch Assignment: " + ex.getMessage());
+		} finally {
+			try {
+				if(prepStmt != null) {
+					prepStmt.close();
+				}
+				if(connection != null) {
+					connection.close();
 				}
 			} catch (SQLException ex) {
 				System.out.println("SQL Exception in Launch Assignment: " + ex.getMessage());
-				success = false;
+			}
+		}
+		
+		return assignmentId;
+	}
+	
+	public static boolean addTeam(String teamName, ArrayList<String> studentNames, int classID, int assignmentID) {
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		PreparedStatement prepStmt = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+		
+		boolean success = false;
+		
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			
+			// Test Teams
+			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][int AssignmentID][TimeStamp TIMESTAMP]
+			prepStmt = connection.prepareStatement("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES (?, ?, ?)");
+			
+			prepStmt.setString(1, teamName);
+			prepStmt.setInt(2, classID);
+			prepStmt.setInt(3, assignmentID);
+			
+			prepStmt.executeUpdate();
+			prepStmt.close();
+			
+			int teamID = -1;
+			String teamIDQuery = "SELECT TeamID FROM Teams WHERE (TeamName='" + teamName + "' AND ClassID=" + classID + " AND AssignmentID=" + assignmentID + ");";
+			teamID = DatabaseManager.getIntFromDB("Get Team ID From Name in Add Team", teamIDQuery, "TeamID", -1);
+			
+			if(teamID != -1) {
+				// Test Team Links
+				// TeamStudents: [int TeamID][int StudentID][TimeStamp TIMESTAMP]
+				for(String studentName : studentNames) {
+					int studentID = DatabaseManager.getPersonIDFromName(studentName);
+					
+					prepStmt = connection.prepareStatement("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (?, ?)");
+					prepStmt.setInt(1,  teamID);
+					prepStmt.setInt(2,  studentID);
+					
+					prepStmt.executeUpdate();
+					prepStmt.close();
+				}
+				
+				success = true;
+			}
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Launch Assignment: " + ex.getMessage());
+		} finally {
+			try {
+				if(prepStmt != null) {
+					prepStmt.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Launch Assignment: " + ex.getMessage());
 			}
 		}
 		

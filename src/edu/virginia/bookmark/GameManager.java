@@ -175,6 +175,7 @@ public class GameManager {
 		String assignmentInfo = "";
 		String deckType = "";
 		int prevAssignment = -1;
+		Element teamsElement;
 		
 		ArrayList<Integer> classIdList = DatabaseManager.loadTeacherClassIds(teacherId);
 		int classId = -1;
@@ -183,6 +184,9 @@ public class GameManager {
 		} else {
 			classId = classIdList.get(0);
 		}
+		
+		int statusNum = 200;
+		String statusMsg = "Success";
 		
 		try {
 			DocumentBuilderFactory docBuildFactory = DocumentBuilderFactory.newInstance();
@@ -203,8 +207,17 @@ public class GameManager {
 			assignmentInfo = XMLHelper.getTextValue(assignmentData, "assignment_info");
 			deckType = XMLHelper.getTextValue(assignmentData, "assignment_deck_type");
 			prevAssignment = DatabaseManager.getCurrentAssignmentIDForClass(classId);
+			teamsElement = (Element) assignmentData.getElementsByTagName("teams").item(0);
+
+			int assignmentId = DatabaseManager.addNewAssignment(assignmentName, assignmentInfo, deckType, prevAssignment);
 			
-			GameManager.CreateNewTeamsFromXML(classId, (Element) assignmentData.getElementsByTagName("teams").item(0));
+			if(assignmentId == -1) {
+				statusNum = 400;
+				statusMsg = "Error Adding Assignment to Database";
+			} else {
+				DatabaseManager.setClassAssignment(classId, assignmentId);
+				GameManager.createNewTeamsFromXML(classId, assignmentId, teamsElement);
+			}
 			
 		} catch (SAXException e) {
 			System.out.println("SAXException Parsing Card XML: " + e.getMessage());
@@ -220,19 +233,13 @@ public class GameManager {
 			return new ResponseInfo(400, "ParserConfigurationException Parsing Card XML: " + e.getMessage());
 		}
 
-		boolean success = DatabaseManager.submitNewAssignment(teacherId, assignmentName, assignmentInfo, deckType, prevAssignment);
-		
-		if(success) {
-			return new ResponseInfo(200, "Success");
-		} else {
-			return new ResponseInfo(400, "Failure");
-		}
+		return new ResponseInfo(statusNum, statusMsg);
 	}
 	
 	/**
 	 * Creates the new teams from XML
 	 */
-	private static void CreateNewTeamsFromXML(int classId, Element allTeamsData) {
+	private static void createNewTeamsFromXML(int classId, int assignmentId, Element allTeamsData) {
 		/*
 		 * <team>
 		 * 		<team_name></team_name>
@@ -247,7 +254,6 @@ public class GameManager {
 		 * ...
 		 */
 		
-		HashMap<String, ArrayList<String>> teamsInfo = new HashMap<String, ArrayList<String>>(); // [Team Name: Student Name List]
 		NodeList teamDataList = allTeamsData.getElementsByTagName("team");
 		for(int teamDataCounter=0; teamDataCounter<teamDataList.getLength(); teamDataCounter++) {
 			// Team Info
@@ -262,15 +268,8 @@ public class GameManager {
 				String studentName = studentNameList.item(studentNameCounter).getFirstChild().getNodeValue();
 				students.add(studentName);
 			}
-			teamsInfo.put(teamName, students);
-		}
-		
-		System.out.println("Creating Teams: ");
-		for(String teamName : teamsInfo.keySet()) {
-			System.out.println("\t" +  teamName);
-			for(String studentName : teamsInfo.get(teamName)) {
-				System.out.println("\t\t" + studentName);
-			}
+			
+			DatabaseManager.addTeam(teamName, students, classId, assignmentId);
 		}
 		
 	}
