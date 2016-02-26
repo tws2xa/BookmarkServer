@@ -45,7 +45,8 @@ public class BookmarkServlet extends HttpServlet {
     private final String UPDATE_TEAM_POSITION = "update-team-position";
     private final String GET_CLASS_STUDENTS = "get-class-students"; // Parameters: "id" (teacher id)
     private final String LAUNCH_NEW_ASSIGNMENT = "launch-new-assignment"; // Parameters: "id" (teacher id), "assignment_info" (assignment xml)
-        
+    private final String GET_CARD_TYPES = "get-card-types"; // Parameters: "id" (person id).    
+    
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     	try {
@@ -343,10 +344,37 @@ public class BookmarkServlet extends HttpServlet {
        	   String launchNewAssignment_AssignmentXML = params.get("assignment_info")[0].trim();
        	   return GameManager.launchNewAssignment(launchNewAssignment_TeacherId, launchNewAssignment_AssignmentXML);
        	   
+       case(GET_CARD_TYPES):
+    	   	int getCardTypes_Id = Integer.parseInt(params.get("id")[0]);
+       		String typesXML = getCardTypeListXML(getCardTypes_Id);
+       		if(typesXML == null) {
+       			return new ResponseInfo(400, "Error Obtaining Card Types");
+       		}
+       		return new ResponseInfo(200, typesXML);
+       		
        default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
     		
     	}
+    }
+    
+    /**
+     * Gets an xml representation of all card types a person may use during their
+     * current assignment.
+     */
+    private String getCardTypeListXML(int personId) {
+    	ArrayList<String> types = DatabaseManager.getCurrentCardTypesForPerson(personId);
+    	
+    	if(types == null) {
+    		return null;
+    	}
+    	
+    	String xml = "<card_types>";
+    	for(String type : types) {
+    		xml+="<type>"+ type + "</type>";
+    	}
+    	xml += "</card_types>";
+    	return xml;
     }
     
     /**
