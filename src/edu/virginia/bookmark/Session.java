@@ -27,6 +27,7 @@ public class Session {
 	ArrayList<Integer> teamChallengeOrder; // List of Team IDs in order of chain submissions.
 	HashMap<Integer, Chain> challengeChains; //<Team ID, Chain>
 	HashMap<Integer, Boolean> challengeSubmissionStatus; // <Team ID, true/false (has responded/passed for challenge).>
+	Point boardCardPosForChain; // The position of the team who has submitted a chain (so we can load a new board card upon completion of their turn)
 	
 	/**
 	 * @param teacherId The id of the teacher who owns this session
@@ -255,6 +256,8 @@ public class Session {
 			for(Team team : schoolClass.getTeams()) {
 				challengeSubmissionStatus.put(team.id, false);
 			}
+			
+			this.boardCardPosForChain = this.getActiveTeam().position;
 		}
 		int teamId = schoolClass.findTeamIdWithStudentId(studentId);
 		this.teamChallengeOrder.add(teamId);
@@ -270,6 +273,7 @@ public class Session {
 		this.teamChallengeOrder.clear();
 		this.challengeChains.clear();
 		this.challengeSubmissionStatus.clear();
+		this.boardCardPosForChain = null;
 	}
 	
 	/**
@@ -291,8 +295,17 @@ public class Session {
 		} else {
 			System.out.println("Unknown Chain Quality: " + quality);
 		}
-		
+				
 		this.getTeamWithId(teamId).score += scoreToAdd;
+		this.clearUpToDateStatus();
+	}
+	
+	public void replaceTeamCardOnBoard(int teamId) {
+		Team team = this.getTeamWithId(teamId);
+		if(this.boardCardPosForChain != null) {
+			board.replaceCardOnBoard(team.getPosition());
+			this.boardCardPosForChain = null;
+		}
 	}
 	
 	public Team getTeamWithId(int teamId) {

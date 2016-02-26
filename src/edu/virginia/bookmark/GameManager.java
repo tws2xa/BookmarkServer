@@ -126,6 +126,7 @@ public class GameManager {
 		
 		DatabaseManager.addChainToDatabase(chain);
 		activeSession.selectChallengeWinner(chainAccessor, chain);
+		activeSession.replaceTeamCardOnBoard(activeSession.getActiveTeam().id);
 		activeSession.advanceTurn();
 		activeSession.setSessionState(SessionState.PlayerTurn);
 		activeSession.clearUpToDateStatus();
