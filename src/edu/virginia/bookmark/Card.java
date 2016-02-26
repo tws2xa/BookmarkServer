@@ -8,19 +8,8 @@ import java.io.*;
 import java.util.HashMap;
 
 public class Card {
-	
-	public enum CardType {
-		Imagery,
-		Diction,
-		Tone,
-		Theme,
-		Argument,
-		Plot_Point,
-		Other
-	}
-	
 	public int id;
-	private CardType type;
+	private String type;
 	private String bodyText;
 	private int pageStart;
 	private int pageEnd;
@@ -29,10 +18,13 @@ public class Card {
 		this.id = id;
 		
 		HashMap<String, Object> cardProperties = DatabaseManager.getCardProperties(id);
-		this.type = getCardTypeFromString((String)cardProperties.get("type"));
+		this.type = (String)cardProperties.get("type");
 		this.bodyText = (String)cardProperties.get("bodyText");
 		this.pageStart = (int)cardProperties.get("pageStart");
 		this.pageEnd = (int)cardProperties.get("pageEnd");
+		
+		this.type = this.type.trim();
+		this.bodyText = this.bodyText.trim();
 	}
 	
 	public String generateCardXML() {
@@ -45,39 +37,21 @@ public class Card {
 		xmlStr += "</card>";
 		return xmlStr;
 	}
-
-	public static CardType getCardTypeFromString(String str) {
-		str = str.toLowerCase();
-		if(str.equals("argument")) {
-			return CardType.Argument;
-		} else if(str.equals("diction")) {
-			return CardType.Diction;
-		} else if(str.equals("imagery")) {
-			return CardType.Imagery;
-		} else if(str.equals("other")) {
-			return CardType.Other;
-		} else if(str.equals("theme")) {
-			return CardType.Theme;
-		} else if(str.equals("tone")) {
-			return CardType.Tone;
-		} else if(str.equals("plot point") || str.equals("plot_point")) {
-			return CardType.Plot_Point;
-		} else {
-			try {
-				return CardType.valueOf(str);
-			} catch(Exception e) {}
-			System.out.println("Searching for invalid card type: " + str);
-			return null;
-		}
-	}
 	
 	/**
 	 * @return the type
 	 */
-	public CardType getType() {
+	public String getType() {
 		return type;
 	}
 
+	/**
+	 * @return True if argument card. False otherwise.
+	 */
+	public boolean isArgumentCard() {
+		return this.type.toLowerCase().trim().equals("argument");
+	}
+	
 	/**
 	 * @return the bodyText
 	 */

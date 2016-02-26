@@ -17,7 +17,6 @@ import javax.sql.DataSource;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
-import edu.virginia.bookmark.Card.CardType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1237,30 +1236,30 @@ public class DatabaseManager {
 			DatabaseManager.addStudent(statement, "Doc7", "Doc7", "Sylvester McCoy", 1);
 			
 			// Cards
-			DatabaseManager.addCard(connection, 2, 1, 1, CardType.Argument.name(),  "Here is the point I wish to argue! Hooray!", -1, -1);
-			DatabaseManager.addCard(connection, 2, 1, 1, CardType.Tone.name(), "I have uncovered the mysteries of Tone! Hooray!", -1, -1);
-			DatabaseManager.addCard(connection, 3, 1, 1, CardType.Imagery.name() , "Here is some imagery! Huzzah!", 2, -1);
-			DatabaseManager.addCard(connection, 3, 1, 1, CardType.Diction.name() , "Words are my speciality! Huzzah!", 7, 8);
-			DatabaseManager.addCard(connection, 4, 1, 1, CardType.Diction.name() , "Here are some fancy words! Yippie!", 6, 7);
-			DatabaseManager.addCard(connection, 4, 1, 1, CardType.Theme.name() , "I theme, you theme, we all theme for Ice Cream! Yippie!", -1, -1);
-			DatabaseManager.addCard(connection, 5, 1, 1, CardType.Tone.name() , "This is how the author felt when writing! Woohoo!", -1, -1);
-			DatabaseManager.addCard(connection, 5, 1, 1, CardType.Other.name() , "I found some alliteration! Woohoo!", 9, -1);
-			DatabaseManager.addCard(connection, 6, 1, 1, CardType.Theme.name() , "Here is a main, underlying idea of the text! Yowzah!", -1, -1);
-			DatabaseManager.addCard(connection, 6, 1, 1, CardType.Argument.name() , "This is a thing I believe! Yowzah!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, 1, CardType.Other.name() , "Here is an incredibly original thought! I love this game!!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, 1, CardType.Imagery.name() , "Beautiful words paint a beautiful picture! I love this game!", 8, 10);
-			DatabaseManager.addCard(connection, 2, 1, 1, CardType.Plot_Point.name(),  "People did things! Hooray!", -1, -1);
-			DatabaseManager.addCard(connection, 2, 1, 1, CardType.Theme.name(), "Here is a theme! Hooray!", -1, -1);
-			DatabaseManager.addCard(connection, 3, 1, 1, CardType.Plot_Point.name() , "A thing occurred! Huzzah!", 2, -1);
-			DatabaseManager.addCard(connection, 3, 1, 1, CardType.Tone.name() , "A tone! Huzzah!", 7, 8);
-			DatabaseManager.addCard(connection, 4, 1, 1, CardType.Plot_Point.name() , "Cool stuff happened! Yippie!", 6, 7);
-			DatabaseManager.addCard(connection, 4, 1, 1, CardType.Argument.name() , "The argument is this! Yippie!", -1, -1);
-			DatabaseManager.addCard(connection, 5, 1, 1, CardType.Plot_Point.name() , "Happenings! Woohoo!", -1, -1);
-			DatabaseManager.addCard(connection, 5, 1, 1, CardType.Imagery.name() , "I found some descriptive words! Woohoo!", 9, -1);
-			DatabaseManager.addCard(connection, 6, 1, 1, CardType.Plot_Point.name() , "This is a thing that happened! Yowzah!", -1, -1);
-			DatabaseManager.addCard(connection, 6, 1, 1, CardType.Diction.name() , "Word choice! Yowzah!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, 1, CardType.Plot_Point.name() , "Here is a brand new thought! I love this game!!", -1, -1);
-			DatabaseManager.addCard(connection, 7, 1, 1, CardType.Imagery.name() , "Pictures! I love this game!", 8, 10);
+			DatabaseManager.addCard(connection, 2, 1, 1, "Argument",  "Here is the point I wish to argue! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 2, 1, 1, "Tone", "I have uncovered the mysteries of Tone! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 3, 1, 1, "Imagery" , "Here is some imagery! Huzzah!", 2, -1);
+			DatabaseManager.addCard(connection, 3, 1, 1, "Diction" , "Words are my speciality! Huzzah!", 7, 8);
+			DatabaseManager.addCard(connection, 4, 1, 1, "Diction" , "Here are some fancy words! Yippie!", 6, 7);
+			DatabaseManager.addCard(connection, 4, 1, 1, "Theme" , "I theme, you theme, we all theme for Ice Cream! Yippie!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, 1, "Tone" , "This is how the author felt when writing! Woohoo!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, 1, "Other" , "I found some alliteration! Woohoo!", 9, -1);
+			DatabaseManager.addCard(connection, 6, 1, 1, "Theme" , "Here is a main, underlying idea of the text! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 6, 1, 1, "Argument" , "This is a thing I believe! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, 1, "Other" , "Here is an incredibly original thought! I love this game!!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, 1, "Imagery" , "Beautiful words paint a beautiful picture! I love this game!", 8, 10);
+			DatabaseManager.addCard(connection, 2, 1, 1, "Plot Point",  "People did things! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 2, 1, 1, "Theme", "Here is a theme! Hooray!", -1, -1);
+			DatabaseManager.addCard(connection, 3, 1, 1, "Plot Point" , "A thing occurred! Huzzah!", 2, -1);
+			DatabaseManager.addCard(connection, 3, 1, 1, "Tone" , "A tone! Huzzah!", 7, 8);
+			DatabaseManager.addCard(connection, 4, 1, 1, "Plot Point" , "Cool stuff happened! Yippie!", 6, 7);
+			DatabaseManager.addCard(connection, 4, 1, 1, "Argument" , "The argument is this! Yippie!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, 1, "Plot Point" , "Happenings! Woohoo!", -1, -1);
+			DatabaseManager.addCard(connection, 5, 1, 1, "Imagery" , "I found some descriptive words! Woohoo!", 9, -1);
+			DatabaseManager.addCard(connection, 6, 1, 1, "Plot Point" , "This is a thing that happened! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 6, 1, 1, "Diction" , "Word choice! Yowzah!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, 1, "Plot Point" , "Here is a brand new thought! I love this game!!", -1, -1);
+			DatabaseManager.addCard(connection, 7, 1, 1, "Imagery" , "Pictures! I love this game!", 8, 10);
 
 
 			// Test Teams
@@ -1306,22 +1305,22 @@ public class DatabaseManager {
 			
 			
 			// Cards
-			DatabaseManager.addCard(connection, 9, 2, 2, CardType.Argument.name(),  "I am Aang. Balance and peace are the good stuff.", -1, -1);
-			DatabaseManager.addCard(connection, 10, 2, 2, CardType.Tone.name(), "I am Appa. This passage portrays the effervescent essence of extraordinary exuberance.", 100, -1);
-			DatabaseManager.addCard(connection, 11, 2, 2, CardType.Imagery.name() , "I am Katara. There is a beautiful stream, flowing like the hope in my heart.", 2, -1);
-			DatabaseManager.addCard(connection, 12, 2, 2, CardType.Diction.name() , "I am Sokka! I found words!", 7, 8);
-			DatabaseManager.addCard(connection, 13, 2, 2, CardType.Diction.name() , "I am Toph. I found better words than Sokka.", 6, 7);
-			DatabaseManager.addCard(connection, 14, 2, 2, CardType.Theme.name() , "I'm Bumi! There's a theme of changing perspective.", -1, -1);
-			DatabaseManager.addCard(connection, 15, 2, 2, CardType.Tone.name() , "I am Zuko. The tone is angst.", -1, -1);
-			DatabaseManager.addCard(connection, 16, 2, 2, CardType.Other.name() , "I am Uncle Iroh. Humility is key.", 9, -1);
-			DatabaseManager.addCard(connection, 9, 2, 2, CardType.Theme.name() , "I am Aang. The theme is forgiveness.", -1, -1);
-			DatabaseManager.addCard(connection, 10, 2, 2, CardType.Argument.name() , "I am Appa. The true meaning of this work lies not in its wearisome words, but in its deeper sense of abstractional injustice.", -1, -1);
-			DatabaseManager.addCard(connection, 11, 2, 2, CardType.Other.name() , "I am Katara. I have found Hope.", -1, -1);
-			DatabaseManager.addCard(connection, 12, 2, 2, CardType.Imagery.name() , "I am Sokka! This book has pictures!", 8, 10);
-			DatabaseManager.addCard(connection, 13, 2, 2, CardType.Plot_Point.name(),  "I am Toph. Some things happened. I didn't care.", -1, -1);
-			DatabaseManager.addCard(connection, 14, 2, 2, CardType.Argument.name(), "I am Bumi! It was all a dream!", -1, -1);
-			DatabaseManager.addCard(connection, 15, 2, 2, CardType.Plot_Point.name() , "I am Zuko. I lost my honor. I will regain my honor. My father will be proud.", 2, -1);
-			DatabaseManager.addCard(connection, 16, 2, 2, CardType.Plot_Point.name() , "I am Uncle Iroh. They had a nice cup of jasmine tea.", 7, 8);
+			DatabaseManager.addCard(connection, 9, 2, 2, "Argument",  "I am Aang. Balance and peace are the good stuff.", -1, -1);
+			DatabaseManager.addCard(connection, 10, 2, 2, "Tone", "I am Appa. This passage portrays the effervescent essence of extraordinary exuberance.", 100, -1);
+			DatabaseManager.addCard(connection, 11, 2, 2, "Imagery" , "I am Katara. There is a beautiful stream, flowing like the hope in my heart.", 2, -1);
+			DatabaseManager.addCard(connection, 12, 2, 2, "Diction" , "I am Sokka! I found words!", 7, 8);
+			DatabaseManager.addCard(connection, 13, 2, 2, "Diction" , "I am Toph. I found better words than Sokka.", 6, 7);
+			DatabaseManager.addCard(connection, 14, 2, 2, "Theme" , "I'm Bumi! There's a theme of changing perspective.", -1, -1);
+			DatabaseManager.addCard(connection, 15, 2, 2, "Tone" , "I am Zuko. The tone is angst.", -1, -1);
+			DatabaseManager.addCard(connection, 16, 2, 2, "Other" , "I am Uncle Iroh. Humility is key.", 9, -1);
+			DatabaseManager.addCard(connection, 9, 2, 2, "Theme" , "I am Aang. The theme is forgiveness.", -1, -1);
+			DatabaseManager.addCard(connection, 10, 2, 2, "Argument" , "I am Appa. The true meaning of this work lies not in its wearisome words, but in its deeper sense of abstractional injustice.", -1, -1);
+			DatabaseManager.addCard(connection, 11, 2, 2, "Other" , "I am Katara. I have found Hope.", -1, -1);
+			DatabaseManager.addCard(connection, 12, 2, 2, "Imagery" , "I am Sokka! This book has pictures!", 8, 10);
+			DatabaseManager.addCard(connection, 13, 2, 2, "Plot Point",  "I am Toph. Some things happened. I didn't care.", -1, -1);
+			DatabaseManager.addCard(connection, 14, 2, 2, "Argument", "I am Bumi! It was all a dream!", -1, -1);
+			DatabaseManager.addCard(connection, 15, 2, 2, "Plot Point" , "I am Zuko. I lost my honor. I will regain my honor. My father will be proud.", 2, -1);
+			DatabaseManager.addCard(connection, 16, 2, 2, "Plot Point" , "I am Uncle Iroh. They had a nice cup of jasmine tea.", 7, 8);
 
 
 			// Test Teams

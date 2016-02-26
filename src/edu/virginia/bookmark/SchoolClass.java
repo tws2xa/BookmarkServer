@@ -2,7 +2,6 @@ package edu.virginia.bookmark;
 
 import java.util.ArrayList;
 
-import edu.virginia.bookmark.Card.CardType;
 
 public class SchoolClass {
 	public int id;
@@ -48,7 +47,7 @@ public class SchoolClass {
 		ArrayList<Card> argumentCards = new ArrayList<Card>();
 		
 		for(Card card : allCards) {
-			if(card.getType().equals(CardType.Argument)) {
+			if(card.isArgumentCard()) {
 				argumentCards.add(card);
 			}
 		}

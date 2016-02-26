@@ -18,8 +18,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import edu.virginia.bookmark.Card.CardType;
-
 public class Chain {
 	public enum ChainQuality {
 		Excellent,
@@ -48,7 +46,7 @@ public class Chain {
 	 */
 	public Card getArgumentCard() {
 		for(Card card : cards.keySet()) {
-			if(card.getType().equals(CardType.Argument)) {
+			if(card.isArgumentCard()) {
 				return card;
 			}
 		}
