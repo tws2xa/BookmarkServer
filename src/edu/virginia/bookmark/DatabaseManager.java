@@ -203,6 +203,75 @@ public class DatabaseManager {
 	// ------------------------- GET SCHOOL CLASS INFO --------------------------
 	// --------------------------------------------------------------------------
 
+	
+	/**
+	 * Returns ALL the information about a class in XML format.
+	 */
+	public static String getFullClassInfo(int classId) {
+		// Table: People [int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
+		// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
+		// Teams: [int TeamID unique][char(120) TeamName][int ClassID][int AssignmentID][TimeStamp TIMESTAMP]
+		// ClassStudents: [int ClassID][int StudentID][TimeStamp TIMESTAMP]
+		// TeamStudents: [int TeamID][int StudentID][TimeStamp TIMESTAMP]
+		// Cards [int CardID unique][int PersonID][int ClassID][int AssignmentID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
+		// Assignments: [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
+		
+		/**
+		 * <class_info>
+		 * 		<class_name>Name</class_name>
+		 * 		<current_assignment>current assignment name</current_assignment>
+		 * 		<assignments>
+		 * 			<assignment>
+		 * 				<assignment_name>Assignment Name</assignment_name>
+		 * 				<assignment_teams>
+		 * 					<team>
+		 * 						<team_name>Team Name</team_name>
+		 * 						<students>
+		 * 							<student_name>Student Name</student_name>
+		 * 							<student_name>...</student_name>
+		 * 							...
+		 * 						</students>
+		 * 					</team>
+		 * 					<team>
+		 * 						...
+		 * 					</team>
+		 *	 				...
+		 * 			</assignment>
+		 * 			<assignment>
+		 * 				...
+		 * 			</assignment>
+		 * 		</assignments>
+		 * </class_info>
+		 */
+		
+		String className = DatabaseManager.getClassName(classId);
+		int currentAssignmentId = DatabaseManager.getCurrentAssignmentIDForClass(classId);
+		String currentAssignment = DatabaseManager.getStringFromDB(
+				"Get Current Assignment Name in Get Class Info",
+				"SELECT AssignmentName FROM Assignments WHERE AssignmentID=" + currentAssignmentId + ";",
+				"AssignmentName",
+				"No Current Assignment"
+				);
+		
+		String classXML = "<class_info>";
+		classXML += "<class_name>" + className + "</class_name>";
+		classXML += "<current_assignment>" + currentAssignment + "</current_assignment>";
+		
+		
+		
+		classXML += "</class_info>";
+		return classXML;
+	}
+	
+	/**
+	 * Return the name of the class with the given id.
+	 */
+	public static String getClassName(int classId) {
+		// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
+		String query = ("SELECT ClassName FROM Classes WHERE ClassID=" + classId + ";");
+		return DatabaseManager.getStringFromDB("Get Class Name", query, "ClassName", "Class #" + classId);
+	}
+	
 	/**
 	 * Get the teams for a specific class
 	 * @param classId The id of the class
