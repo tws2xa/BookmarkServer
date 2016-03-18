@@ -210,7 +210,7 @@ public class GameManager {
 			prevAssignment = DatabaseManager.getCurrentAssignmentIDForClass(classId);
 			teamsElement = (Element) assignmentData.getElementsByTagName("teams").item(0);
 
-			int assignmentId = DatabaseManager.addNewAssignment(assignmentName, assignmentInfo, deckType, prevAssignment);
+			int assignmentId = DatabaseManager.addNewAssignment(classId, assignmentName, assignmentInfo, deckType, prevAssignment);
 			
 			if(assignmentId == -1) {
 				statusNum = 400;

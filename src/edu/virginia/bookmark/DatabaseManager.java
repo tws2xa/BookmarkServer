@@ -53,7 +53,7 @@ import java.util.HashMap;
  * 		[int ChainID][int Card1ID][int Card2ID][TimeStamp TIMESTAMP]
  * 
  * Table: Assignments
- * 		[int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
+ * 		[int AssignmentID][int ClassID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
  *
  * Table: DeckCardTypes
  * 		[char(120) DeckTypeName][char(120) CardType] <-- This is not ideal but I'm in a rush.
@@ -170,6 +170,7 @@ public class DatabaseManager {
 			 // [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
 			statement.executeUpdate("CREATE TABLE Assignments ("
 					+ "AssignmentID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, "
+					+ "ClassID INT UNSIGNED NOT NULL, "
 					+ "AssignmentName CHAR(120) NOT NULL, "
 					+ "AssignmentInfo TEXT, "
 					+ "DeckType CHAR(120) NOT NULL, "
@@ -214,7 +215,7 @@ public class DatabaseManager {
 		// ClassStudents: [int ClassID][int StudentID][TimeStamp TIMESTAMP]
 		// TeamStudents: [int TeamID][int StudentID][TimeStamp TIMESTAMP]
 		// Cards [int CardID unique][int PersonID][int ClassID][int AssignmentID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
-		// Assignments: [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
+		// Assignments: [int AssignmentID][int ClassID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
 		
 		/**
 		 * <class_info>
@@ -227,8 +228,13 @@ public class DatabaseManager {
 		 * 					<team>
 		 * 						<team_name>Team Name</team_name>
 		 * 						<students>
-		 * 							<student_name>Student Name</student_name>
-		 * 							<student_name>...</student_name>
+		 * 							<student>
+		 * 								<student_name>Student Name</student_name>
+		 * 								<student_num_cards>37</student_num_cards>
+		 * 							</student>
+		 * 							<student>
+		 * 								...
+		 * 							</student>
 		 * 							...
 		 * 						</students>
 		 * 					</team>
@@ -256,8 +262,14 @@ public class DatabaseManager {
 		String classXML = "<class_info>";
 		classXML += "<class_name>" + className + "</class_name>";
 		classXML += "<current_assignment>" + currentAssignment + "</current_assignment>";
+
+		classXML += "<assignments>";
 		
+		for(int assignmentId : DatabaseManager.getClassAssignmentIds(classId)) {
+			classXML += getFullAssignmentInfo(assignmentId);
+		}
 		
+		classXML += "</assignments>";
 		
 		classXML += "</class_info>";
 		return classXML;
@@ -270,6 +282,55 @@ public class DatabaseManager {
 		// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
 		String query = ("SELECT ClassName FROM Classes WHERE ClassID=" + classId + ";");
 		return DatabaseManager.getStringFromDB("Get Class Name", query, "ClassName", "Class #" + classId);
+	}
+	
+	/**
+	 * Get all assignment ids linked to the given class.
+	 */
+	public static ArrayList<Integer> getClassAssignmentIds(int classId) {
+		// Assignments: [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
+		ArrayList<Integer> assignmentIds = new ArrayList<Integer>();	
+		
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+				
+			String query = "SELECT Assignments.AssignmentID FROM Assignments "
+					+ "WHERE (Assignment.ClassID=" + classId + ");";
+			ResultSet results = statement.executeQuery(query);
+			while(results.next()) {
+				int id = results.getInt("AssignmentID");
+				assignmentIds.add(id);
+			}
+			
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Load Class Assignment IDs: " + ex.getMessage());
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Load Class Assignment IDs Finally: " + ex.getMessage());
+			}
+		}
+		
+		return assignmentIds;
 	}
 	
 	/**
@@ -400,6 +461,31 @@ public class DatabaseManager {
 		return studentNames;
 	}
 		
+
+
+	// --------------------------------------------------------------------------
+	// -------------------------- GET ASSIGNMENT INFO ---------------------------
+	// --------------------------------------------------------------------------
+	
+	/**
+	 * Gets all information associated with the given assignment.
+	 */
+	public static String getFullAssignmentInfo(int assignmentId) {
+		String assignmentXML = "<assignment>";
+		
+		String assignmentName = DatabaseManager.getStringFromDB(
+				"Getting Assignment Name In Full Class Info",
+				"SELECT AssignmentName FROM Assignments WHERE AssignmentID=" + assignmentId + ";",
+				"AssignmentName",
+				"Unknown Assignment: #" + assignmentId
+				);
+		assignmentXML += "<assignment_name>" + assignmentName + "</assignment_name>";
+		
+		
+		
+		assignmentXML += "</assignment>";
+		return assignmentXML;
+	}
 	
 	// --------------------------------------------------------------------------
 	// ----------------------------- GET CARD INFO ------------------------------
@@ -1109,7 +1195,7 @@ public class DatabaseManager {
 	 * Puts a new assignment into the assignment table
 	 * Returns the assignment's id
 	 */
-	public static int addNewAssignment(String assignmentName, String assignmentInfo, String deckType, int prevAssignment) {
+	public static int addNewAssignment(int classId, String assignmentName, String assignmentInfo, String deckType, int prevAssignment) {
 		MysqlDataSource datasource = null;
 		Connection connection = null;
 		PreparedStatement prepStmt = null;
@@ -1139,25 +1225,27 @@ public class DatabaseManager {
 			*/
 			
 			// Insert into the assignment table
-			String prepQuery = "INSERT INTO Assignments (AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES (?, ?, ?, ?);";
+			String prepQuery = "INSERT INTO Assignments (ClassID, AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES (?, ?, ?, ?, ?);";
 
 			prepStmt = connection.prepareStatement(prepQuery);
 			
-			prepStmt.setString(1, assignmentName);
-			prepStmt.setString(2, assignmentInfo);
-			prepStmt.setString(3, deckType);
-			prepStmt.setInt(4, prevAssignment);
+			prepStmt.setInt(1, classId);
+			prepStmt.setString(2, assignmentName);
+			prepStmt.setString(3, assignmentInfo);
+			prepStmt.setString(4, deckType);
+			prepStmt.setInt(5, prevAssignment);
 			
 			prepStmt.executeUpdate();
 			
-			String assignmentIdQuery = "SELECT AssignmentID FROM Assignments WHERE (AssignmentName=? AND AssignmentInfo=? AND DeckType=? AND PrevAssignmentID=?);";
+			String assignmentIdQuery = "SELECT AssignmentID FROM Assignments WHERE (ClassID=? AND AssignmentName=? AND AssignmentInfo=? AND DeckType=? AND PrevAssignmentID=?);";
 			
 			prepStmt.close();
 			prepStmt = connection.prepareStatement(assignmentIdQuery);
-			prepStmt.setString(1, assignmentName);
-			prepStmt.setString(2, assignmentInfo);
-			prepStmt.setString(3, deckType);
-			prepStmt.setInt(4, prevAssignment);
+			prepStmt.setInt(1, classId);
+			prepStmt.setString(2, assignmentName);
+			prepStmt.setString(3, assignmentInfo);
+			prepStmt.setString(4, deckType);
+			prepStmt.setInt(5, prevAssignment);
 			
 			ResultSet results = prepStmt.executeQuery();
 			while(results.next()) { // while so we grab the most recent, in case of duplicates.
@@ -1277,12 +1365,14 @@ public class DatabaseManager {
 			// ------------------------------------------------------------------------
 			
 			// Assignments: [int AssignmentID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
-			statement.executeUpdate("INSERT INTO Assignments (AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES ("
+			statement.executeUpdate("INSERT INTO Assignments (ClassID, AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES ("
+					+ "1, "
 					+ "'Doctor Who Assignment', "
 					+ "'This is an assignment description for Doctor Who.', "
 					+ "'Fiction', "
 					+ "0);");
 			statement.executeUpdate("INSERT INTO Assignments (AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES ("
+					+ "2, "
 					+ "'Avatar Assignment', "
 					+ "'This is an assignment description for Avatar.', "
 					+ "'Non-Fiction', "
