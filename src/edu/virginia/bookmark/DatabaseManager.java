@@ -1371,7 +1371,7 @@ public class DatabaseManager {
 					+ "'This is an assignment description for Doctor Who.', "
 					+ "'Fiction', "
 					+ "0);");
-			statement.executeUpdate("INSERT INTO Assignments (AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES ("
+			statement.executeUpdate("INSERT INTO Assignments (ClassID, AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES ("
 					+ "2, "
 					+ "'Avatar Assignment', "
 					+ "'This is an assignment description for Avatar.', "
