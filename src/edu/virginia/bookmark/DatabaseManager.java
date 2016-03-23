@@ -242,6 +242,7 @@ public class DatabaseManager {
 		 * 						...
 		 * 					</team>
 		 *	 				...
+		 *				</assignment_teams>
 		 * 			</assignment>
 		 * 			<assignment>
 		 * 				...
@@ -266,7 +267,7 @@ public class DatabaseManager {
 		classXML += "<assignments>";
 		
 		for(int assignmentId : DatabaseManager.getClassAssignmentIds(classId)) {
-			classXML += getFullAssignmentInfo(assignmentId);
+			classXML += DatabaseManager.getFullAssignmentInfo(assignmentId, classId);
 		}
 		
 		classXML += "</assignments>";
@@ -470,7 +471,40 @@ public class DatabaseManager {
 	/**
 	 * Gets all information associated with the given assignment.
 	 */
-	public static String getFullAssignmentInfo(int assignmentId) {
+	public static String getFullAssignmentInfo(int assignmentId, int classId) {
+		// Table: People [int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
+		// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
+		// Teams: [int TeamID unique][char(120) TeamName][int ClassID][int AssignmentID][TimeStamp TIMESTAMP]
+		// ClassStudents: [int ClassID][int StudentID][TimeStamp TIMESTAMP]
+		// TeamStudents: [int TeamID][int StudentID][TimeStamp TIMESTAMP]
+		// Cards [int CardID unique][int PersonID][int ClassID][int AssignmentID][char(120) CardType][text CardBody][int PageStart][int PageEnd][TimeStamp TIMESTAMP]
+		// Assignments: [int AssignmentID][int ClassID][char(120) AssignmentName][Text AssignmentInfo][char(120) DeckType][int PrevAssignmentID]
+				
+		/**
+		 * <assignment>
+		 *		<assignment_name>Assignment Name</assignment_name>
+		 *		<assignment_teams>
+		 *			<team>
+		 *				<team_name>Team Name</team_name>
+		 *				<students>
+		 *					<student>
+		 *						<student_name>Student Name</student_name>
+		 *						<student_num_cards>37</student_num_cards>
+		 *					</student>
+		 *					<student>
+		 *						...
+		 *					</student>
+		 *					...
+		 *				</students>
+		 *			</team>
+		 *			<team>
+		 *				...
+		 *			</team>
+		 *			...
+		 *		</assignment_teams>
+		 * </assignment>
+		 */	
+		
 		String assignmentXML = "<assignment>";
 		
 		String assignmentName = DatabaseManager.getStringFromDB(
@@ -481,10 +515,61 @@ public class DatabaseManager {
 				);
 		assignmentXML += "<assignment_name>" + assignmentName + "</assignment_name>";
 		
-		
+		assignmentXML += "<assignment_teams>";
+		for(int teamId : DatabaseManager.getAssignmentTeamIds(assignmentId)) {
+			assignmentXML += DatabaseManager.getFullTeamXML(teamId, assignmentId, classId);
+		}
+		assignmentXML += "</assignment_teams>";
 		
 		assignmentXML += "</assignment>";
 		return assignmentXML;
+	}
+	
+	/**
+	 * Get all teams for the given assignment
+	 */
+	public static ArrayList<Integer> getAssignmentTeamIds(int assignmentId) {
+		ArrayList<Integer> teamIds = new ArrayList<Integer>();	
+		
+		MysqlDataSource datasource = null;
+		Connection connection = null;
+		Statement statement = null;
+		
+		String url="jdbc:mysql://localhost:3306/bookmarkdb";
+		String user="Bookmark";
+		String password="jetbookmark";
+			
+		try {
+			datasource = new MysqlDataSource();
+			datasource.setUrl(url);
+			datasource.setUser(user);
+			datasource.setPassword(password);
+			connection = datasource.getConnection();
+			statement = connection.createStatement();
+				
+			String query = "SELECT TeamID FROM Teams WHERE (AssignmentID=" + assignmentId + ");";
+			ResultSet results = statement.executeQuery(query);
+			while(results.next()) {
+				int id = results.getInt("TeamID");
+				teamIds.add(id);
+			}
+			
+		} catch(SQLException ex) {
+			System.out.println("SQL Exception in Load Assignment Team IDs: " + ex.getMessage());
+		} finally {
+			try {
+				if(statement != null) {
+					statement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException ex) {
+				System.out.println("SQL Exception in Load Assignment Team IDs Finally: " + ex.getMessage());
+			}
+		}
+		
+		return teamIds;
 	}
 	
 	// --------------------------------------------------------------------------
@@ -950,6 +1035,41 @@ public class DatabaseManager {
 		return studentIDs;
 	}
 	
+	/**
+	 * Creates XML with all info for the given team (and assignment id).
+	 */
+	public static String getFullTeamXML(int teamId, int assignmentId, int classId) {
+		/**
+		 * <team>
+		 *		<team_name>Team Name</team_name>
+		 *		<students>
+		 *			<student>
+		 *				<student_name>Student Name</student_name>
+		 *				<student_num_cards>37</student_num_cards>
+		 *			</student>
+		 *			<student>
+		 *				...
+		 *			</student>
+		 *			...
+		 *		</students>
+		 * </team>
+		 */
+		String teamXML = "<team>";
+		String teamName = DatabaseManager.getTeamName(teamId);
+		teamXML += "<team_name>" + teamName + "</team_name>";
+		
+		for(int studentId : DatabaseManager.loadTeamStudentIds(teamId)) {
+			teamXML += "<student>";
+				String studentName = DatabaseManager.getPersonName(studentId);
+				teamXML += "<student_name>" + studentName + "</student_name>";
+				int numCards = DatabaseManager.loadStudentDeckIds(studentId, classId, assignmentId).size();
+				teamXML += "<student_num_cards>" + numCards + "</student_num_cards>";
+			teamXML += "</student>";
+		}
+		
+		teamXML += "</team>";
+		return teamXML;
+	}
 
 	// --------------------------------------------------------------------------
 	// ---------------------------- ACCOUNT METHODS -----------------------------
