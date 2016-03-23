@@ -309,7 +309,7 @@ public class DatabaseManager {
 			statement = connection.createStatement();
 				
 			String query = "SELECT Assignments.AssignmentID FROM Assignments "
-					+ "WHERE (Assignment.ClassID=" + classId + ");";
+					+ "WHERE (Assignments.ClassID=" + classId + ");";
 			ResultSet results = statement.executeQuery(query);
 			while(results.next()) {
 				int id = results.getInt("AssignmentID");
