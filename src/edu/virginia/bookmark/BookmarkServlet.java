@@ -46,6 +46,7 @@ public class BookmarkServlet extends HttpServlet {
     private final String GET_CLASS_STUDENTS = "get-class-students"; // Parameters: "id" (teacher id)
     private final String LAUNCH_NEW_ASSIGNMENT = "launch-new-assignment"; // Parameters: "id" (teacher id), "assignment_info" (assignment xml)
     private final String GET_CARD_TYPES = "get-card-types"; // Parameters: "id" (person id).    
+    private final String GET_TEAM_NAME = "get-team-name";
     
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -351,6 +352,16 @@ public class BookmarkServlet extends HttpServlet {
        			return new ResponseInfo(400, "Error Obtaining Card Types");
        		}
        		return new ResponseInfo(200, typesXML);
+       		
+       case(GET_TEAM_NAME):
+    		int getStudent_Id = Integer.parseInt(params.get("id")[0]);
+       		int team_id = DatabaseManager.getTeamContainingStudent(getStudent_Id);
+       		String team_name = DatabaseManager.getTeamName(team_id);
+       		if(team_name == null) {
+       			return new ResponseInfo(400, "Error Obtaining Team Name");
+       		}
+       		
+       		return new ResponseInfo(200, team_name);
        		
        default:
     		return new ResponseInfo(500, "Unrecognized Action: " + action);
