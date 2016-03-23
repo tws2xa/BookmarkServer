@@ -19,6 +19,7 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 /******
@@ -265,8 +266,10 @@ public class DatabaseManager {
 		classXML += "<current_assignment>" + currentAssignment + "</current_assignment>";
 
 		classXML += "<assignments>";
-		
-		for(int assignmentId : DatabaseManager.getClassAssignmentIds(classId)) {
+
+		ArrayList<Integer> assignmentIds = DatabaseManager.getClassAssignmentIds(classId);
+		Collections.reverse(assignmentIds); // Reverse so most recent is first
+		for(int assignmentId : assignmentIds) {
 			classXML += DatabaseManager.getFullAssignmentInfo(assignmentId, classId);
 		}
 		
@@ -508,7 +511,7 @@ public class DatabaseManager {
 		String assignmentXML = "<assignment>";
 		
 		String assignmentName = DatabaseManager.getStringFromDB(
-				"Getting Assignment Name In Full Class Info",
+				"Getting Assignment Name In Full Assignment Info",
 				"SELECT AssignmentName FROM Assignments WHERE AssignmentID=" + assignmentId + ";",
 				"AssignmentName",
 				"Unknown Assignment: #" + assignmentId
@@ -1058,6 +1061,7 @@ public class DatabaseManager {
 		String teamName = DatabaseManager.getTeamName(teamId);
 		teamXML += "<team_name>" + teamName + "</team_name>";
 		
+		teamXML += "<students>";
 		for(int studentId : DatabaseManager.loadTeamStudentIds(teamId)) {
 			teamXML += "<student>";
 				String studentName = DatabaseManager.getPersonName(studentId);
@@ -1066,6 +1070,7 @@ public class DatabaseManager {
 				teamXML += "<student_num_cards>" + numCards + "</student_num_cards>";
 			teamXML += "</student>";
 		}
+		teamXML += "</students>";
 		
 		teamXML += "</team>";
 		return teamXML;
