@@ -225,6 +225,7 @@ public class DatabaseManager {
 		 * 		<assignments>
 		 * 			<assignment>
 		 * 				<assignment_name>Assignment Name</assignment_name>
+		 *				<assignment_id>assignment_id</assignment_id>
 		 * 				<assignment_teams>
 		 * 					<team>
 		 * 						<team_name>Team Name</team_name>
@@ -232,6 +233,7 @@ public class DatabaseManager {
 		 * 							<student>
 		 * 								<student_name>Student Name</student_name>
 		 * 								<student_num_cards>37</student_num_cards>
+		 * 								<student_id>id</student_id>
 		 * 							</student>
 		 * 							<student>
 		 * 								...
@@ -486,6 +488,7 @@ public class DatabaseManager {
 		/**
 		 * <assignment>
 		 *		<assignment_name>Assignment Name</assignment_name>
+         *		<assignment_id>assignment_id</assignment_id>
 		 *		<assignment_teams>
 		 *			<team>
 		 *				<team_name>Team Name</team_name>
@@ -493,6 +496,7 @@ public class DatabaseManager {
 		 *					<student>
 		 *						<student_name>Student Name</student_name>
 		 *						<student_num_cards>37</student_num_cards>
+		 * 						<student_id>id</student_id>
 		 *					</student>
 		 *					<student>
 		 *						...
@@ -517,6 +521,7 @@ public class DatabaseManager {
 				"Unknown Assignment: #" + assignmentId
 				);
 		assignmentXML += "<assignment_name>" + assignmentName + "</assignment_name>";
+		assignmentXML += "<assignment_id>" + assignmentId + "</assignment_id>";
 		
 		assignmentXML += "<assignment_teams>";
 		for(int teamId : DatabaseManager.getAssignmentTeamIds(assignmentId)) {
@@ -1049,6 +1054,7 @@ public class DatabaseManager {
 		 *			<student>
 		 *				<student_name>Student Name</student_name>
 		 *				<student_num_cards>37</student_num_cards>
+		 * 				<student_id>id</student_id>
 		 *			</student>
 		 *			<student>
 		 *				...
@@ -1068,6 +1074,7 @@ public class DatabaseManager {
 				teamXML += "<student_name>" + studentName + "</student_name>";
 				int numCards = DatabaseManager.loadStudentDeckIds(studentId, classId, assignmentId).size();
 				teamXML += "<student_num_cards>" + numCards + "</student_num_cards>";
+				teamXML += "<student_id>" + studentId + "</student_id>";
 			teamXML += "</student>";
 		}
 		teamXML += "</students>";

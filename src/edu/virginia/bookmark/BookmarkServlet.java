@@ -214,6 +214,7 @@ public class BookmarkServlet extends HttpServlet {
 		case(GET_STUDENT_DECK):
 			int getDeckStudentId = Integer.parseInt(params.get("id")[0]);
 			int getDeckClassId = Integer.parseInt(params.get("classId")[0]);
+			int getDeckAssignmentId = Integer.parseInt(params.get("assignmentId")[0]);
 			if(getDeckClassId == -1) {
 				System.out.println("USING DEFAULT CLASS FOR STUDENT IN GET STUDENT DECK.");
 				getDeckClassId = DatabaseManager.getClassContainingStudent(getDeckStudentId);
@@ -221,7 +222,10 @@ public class BookmarkServlet extends HttpServlet {
 					return new ResponseInfo(400, "Could not find class containing student with id #" + getDeckStudentId);
 				}
 			}
-			String studentDeckXML = getStudentDeckXML(getDeckStudentId, getDeckClassId);
+			if(getDeckAssignmentId == -1) {
+				getDeckAssignmentId = DatabaseManager.getCurrentAssignmentIDForClass(getDeckClassId);
+			}
+			String studentDeckXML = getStudentDeckXML(getDeckStudentId, getDeckClassId, getDeckAssignmentId);
 			return new ResponseInfo(200, studentDeckXML);
 
 		case(GET_TEAM_DECK):
@@ -402,13 +406,22 @@ public class BookmarkServlet extends HttpServlet {
 		return xml;
 	}
 
+
 	/**
 	 * Generates xml representing a student's deck.
 	 * @param studentId The id of the student whose deck we are looking up
 	 */
 	private String getStudentDeckXML(int studentId, int classId) {
 		int currentAssignmentId = DatabaseManager.getCurrentAssignmentIDForClass(classId);
-		ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(studentId, classId, currentAssignmentId);
+		return getStudentDeckXML(studentId, classId, currentAssignmentId);
+	}
+	
+	/**
+	 * Generates xml representing a student's deck.
+	 * @param studentId The id of the student whose deck we are looking up
+	 */
+	private String getStudentDeckXML(int studentId, int classId, int assignmentId) {
+		ArrayList<Integer> cardIds = DatabaseManager.loadStudentDeckIds(studentId, classId, assignmentId);
 		String xml = "<deck>";
 		for(int cardId : cardIds) {
 			Card card = new Card(cardId);
