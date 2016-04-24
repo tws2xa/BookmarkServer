@@ -1509,6 +1509,12 @@ public class DatabaseManager {
 					+ "'This is an assignment description for Avatar.', "
 					+ "'Non-Fiction', "
 					+ "0);");
+			statement.executeUpdate("INSERT INTO Assignments (ClassID, AssignmentName, AssignmentInfo, DeckType, PrevAssignmentID) VALUES ("
+					+ "3, "
+					+ "'Playtest Assignment', "
+					+ "'This is an assignment description for the playtest session!', "
+					+ "'Fiction', "
+					+ "0);");
 						
 			
 			// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
@@ -1631,6 +1637,46 @@ public class DatabaseManager {
 			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (6, 14)");
 			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (7, 15)");
 			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (7, 16)");
+			
+
+			// ------------------------------------------------------------------------
+			// --------------------------- Bookmark Class 3 ---------------------------
+			// ------------------------------------------------------------------------
+
+			// Classes: [int ClassID unique][char(120) ClassName][text ClassInfo][int TeacherID][int CurrentAssignmentID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO Classes (ClassName, ClassInfo, TeacherID, CurrentAssignmentID) VALUES ("
+					+ "'Bookmark Playtest', "
+					+ "'Bookmark playtest class April 2016', "
+					+ "17, 3)");
+			
+			// Test Teacher
+			// People: [int PersonID unique][char(120) UserName][char(120) Password][char(120) PersonName][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO People (UserName, Password, PersonName) VALUES ('bookmark_playtest_teacher', 'bpt', 'Playtest Teacher')");
+			
+			// Test Students
+			DatabaseManager.addStudent(statement, "cmp5dp", "red", "cmp5dp", 3); // 18
+			DatabaseManager.addStudent(statement, "edg4nw", "silver", "edg4nw", 3); // 19
+			DatabaseManager.addStudent(statement, "whf2zu", "green", "whf2zu", 3); // 20
+			DatabaseManager.addStudent(statement, "cek7bz", "purple", "cek7bz", 3); // 21
+			DatabaseManager.addStudent(statement, "pms5jt", "gray", "pms5jt", 3); // 22
+			DatabaseManager.addStudent(statement, "bzc4kc", "blue", "bzc4kc", 3); // 23
+		
+			// Test Teams
+			// Teams: [int TeamID unique][char(120) TeamName][int ClassID][int AssignmentID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Gandalf', 3, 3)"); // 8
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Frodo', 3, 3)"); // 9
+			statement.executeUpdate("INSERT INTO Teams (TeamName, ClassID, AssignmentID) VALUES ('Bilbo', 3, 3)"); // 10
+			
+			// Test Team Links
+			// TeamStudents: [int TeamID][int StudentID][TimeStamp TIMESTAMP]
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (8, 18)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (8, 19)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (9, 20)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (9, 21)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (10, 22)");
+			statement.executeUpdate("INSERT INTO TeamStudents (TeamID, StudentID) VALUES (10, 23)");
+			
+
 			
 		} catch(SQLException ex) {
 			System.out.println("SQL Exception in Create Test Content: " + ex.getMessage());

@@ -11,7 +11,6 @@ public class Session {
 	int teacherId;
 	Board board;
 	SchoolClass schoolClass;
-	ArrayList<Team> teams;
 	
 	
 	enum SessionState {
@@ -36,7 +35,6 @@ public class Session {
 	public Session(int teacherId, int classId) {
 		this.teacherId = teacherId;
 		this.schoolClass = new SchoolClass(classId);
-		this.teams = this.schoolClass.getTeams();
 		this.setSessionState(SessionState.Paused);
 	}
 	
@@ -45,7 +43,7 @@ public class Session {
 	 */
 	public void startSession() {
 		System.out.println("Creating Board");
-		this.board = new Board(teams, schoolClass.getClassDeck());
+		this.board = new Board(schoolClass.getTeams(), schoolClass.getClassDeck());
 		System.out.println("Setting Team Positions.");
 		initializeTeamPositions();
 		System.out.println("Clearing Up To Date Status.");
@@ -62,7 +60,7 @@ public class Session {
 	public void initializeTeamPositions() {
 		int x = 0;
 		int y = 0;
-		for(Team team : teams) {
+		for(Team team : this.schoolClass.getTeams()) {
 			team.setPosition(x, y);
 			x++;
 			if(x >= board.BOARD_WIDTH) {
@@ -99,7 +97,7 @@ public class Session {
 		
 		info += getModeInfoXML(requestId);
 		
-		for(Team team : teams) {
+		for(Team team : this.schoolClass.getTeams()) {
 			info += team.getInfoString();
 		}
 
@@ -130,7 +128,7 @@ public class Session {
 		if(this.activeTurnTeamIndex < 0) {
 			return null;
 		}
-		return this.teams.get(this.activeTurnTeamIndex);
+		return this.schoolClass.getTeams().get(this.activeTurnTeamIndex);
 	}
 	
 	/**
@@ -222,7 +220,7 @@ public class Session {
 		if(id == teacherId) {
 			return true;
 		}
-		for(Team team : teams) {
+		for(Team team : this.schoolClass.getTeams()) {
 			if(team.containsStudentWithId(id)) {
 				return true;
 			}
@@ -234,7 +232,7 @@ public class Session {
 	 * Adds the student with the given ID to the session.
 	 */
 	public void addStudentWithId(int id) {
-		for(Team team : teams) {
+		for(Team team : this.schoolClass.getTeams()) {
 			if(team.containsStudentWithId(id)) {
 				System.out.println("Adding a Student From Team " + team.getName());
 				if(activeTurnTeamIndex < 0) {
@@ -309,7 +307,7 @@ public class Session {
 	}
 	
 	public Team getTeamWithId(int teamId) {
-		for(Team team : teams) {
+		for(Team team : this.schoolClass.getTeams()) {
 			if(team.id == teamId) {
 				return team;
 			}
